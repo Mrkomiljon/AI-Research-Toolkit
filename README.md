@@ -1,6 +1,6 @@
-# AI Research Toolkit (v1.1)
+# AI Research Toolkit (v1.2)
 
-Local-first, skill-based research workflow toolkit for **Claude Code** and **OpenAI Codex**: nine specialist Agent
+Local-first, skill-based research workflow toolkit for **Claude Code** and **OpenAI Codex**: eleven specialist Agent
 Skills plus a mandatory `research-orchestrator`, backed by a deterministic Python engine (`rtk`). It helps a researcher
 find papers, analyze them with locators, build evidence-linked reviews, shortlist candidate gaps, structure manuscripts,
 audit citations, check integrity, simulate peer review and track progress — **without inventing papers, results or
@@ -22,6 +22,8 @@ UI languages: Uzbek, English, Russian (skills are written in English; the agent 
 | `academic-integrity` | attribution/provenance audit, AI-use disclosure draft, submission checklist | no plagiarism-free certificates, no detector evasion |
 | `peer-reviewer` | section-wise major/minor comments, revision plan, response draft | simulated; no acceptance guarantee |
 | `research-progress` | status from artifacts on disk, blockers, next actions | no evidence-free completion marks |
+| `academic-writing` *(new in 1.2)* | scientific copy-editing: clarity, concision, tense/voice, acronyms, hedging; tracked edit report; before/after metrics | facts, numbers, citations and claims never change |
+| `journal-standards` *(new in 1.2)* | reporting-guideline checklist (CONSORT, STROBE, STARD, TRIPOD+AI, PRISMA, ARRIVE, CARE, generic), ICMJE declarations, journal limits, cover-letter draft | readiness check, not a guarantee of acceptance |
 
 ## Requirements
 
@@ -115,6 +117,9 @@ Outputs are ordinary files (`.md`, `.xlsx`, `.docx`, `.json`) under the workspac
 - `Use paper-analyzer. Analyze papers/PDFs/smith2023.pdf for the question "which features drive accuracy?"`
 - `Use citation-verifier. Check manuscript/draft.docx against sources/references.bib.`
 - `Use research-progress. What is done, what is blocked, what next?`
+- `Use academic-writing. Polish the English of manuscript/manuscript-outline.md without changing any numbers or citations.`
+- `Use journal-standards. Check manuscript/manuscript-draft.docx against TRIPOD+AI and the author guidelines in reviews/journal-guidelines.txt.`
+- Uzbek: `Use journal-standards. Maqolani xalqaro nashr standartlariga moslashtir.`
 - Uzbek: `Use research-orchestrator. Paxta hosildorligi va ML bo'yicha 20 ta maqola top va bo'shliqlarni aniqla.`
 - Russian: `Use research-orchestrator. Найди 20 статей о прогнозировании урожайности хлопка и пробелы в исследованиях.`
 
@@ -146,6 +151,15 @@ workspace/<slug>/
 └── exports/
 ```
 
+## About the security scan shown by `npx skills add`
+
+The Skills CLI runs three automated scanners (Gen Agent Trust Hub, Socket, Snyk) over every SKILL.md before
+installation. For this toolkit they report "Safe"/"Pass" with a few Socket alerts and Snyk "Medium" on
+`literature-search` and `research-orchestrator`. The skills instruct the agent to run a local command (`rtk`), call
+public scholarly APIs (OpenAlex, Crossref) and write files in your workspace; scanners flag exactly those behaviours.
+Nothing is downloaded or executed from the skill text itself, no credentials are read, and the full source is in this
+repository. Review `skills/` yourself if in doubt, then answer "Yes".
+
 ## Data privacy
 
 - Artifacts, registries and PDFs stay on your disk. Metadata APIs receive only query strings and DOIs.
@@ -163,7 +177,7 @@ rtk validate-skills --skills-dir skills
 pytest -q
 ```
 
-74 tests (unit, integration, acceptance) pass offline on Windows 11 / Python 3.11.9 (2026-11-07); CI runs them on
+ tests (unit, integration, acceptance) pass offline on Windows 11 / Python 3.11.9 (2026-11-07); CI runs them on
 Ubuntu and Windows with Python 3.11 and 3.12. Acceptance criteria from the specification:
 
 | # | Criterion | Status |
@@ -190,11 +204,11 @@ Ubuntu and Windows with Python 3.11 and 3.12. Acceptance criteria from the speci
 
 ## Repository map
 
-`skills/` canonical skills · `research_toolkit/` engine · `scripts/` install, doctor, init_project, validate_sources,
+`skills/` canonical skills (12) · `research_toolkit/` engine · `scripts/` install, doctor, init_project, validate_sources,
 export_report, build_templates · `templates/` · `examples/agriculture-research/` · `tests/` · `docs/` (installation,
 user-guide-uz, architecture, security) · `.github/workflows/ci.yml`.
 
-Published on PyPI: https://pypi.org/project/ai-research-toolkit/ (v1.1.1, 2026-11-07).
+Published on PyPI: https://pypi.org/project/ai-research-toolkit/ (v1.2.0, 2026-11-07).
 
 ## Releasing to PyPI (maintainers)
 

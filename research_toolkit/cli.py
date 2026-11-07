@@ -357,6 +357,33 @@ def cmd_peer_review(a):
         sys.exit(4)
 
 
+def cmd_writing(a):
+    from .writing import check_writing
+
+    pm = _pm(a)
+    try:
+        _out(check_writing(pm, a.file, compare_with=a.compare_with), True)
+    except ValueError as exc:
+        _out({"error": str(exc)}, True)
+        sys.exit(4)
+
+
+def cmd_journal(a):
+    from .journal import GUIDELINES, build_checklist, cover_letter
+
+    pm = _pm(a)
+    try:
+        if a.action == "checklist":
+            _out(build_checklist(pm, a.manuscript, a.guideline, guidelines_file=a.guidelines_file, word_limit=a.word_limit, abstract_limit=a.abstract_limit), True)
+        elif a.action == "cover-letter":
+            _out(cover_letter(pm, a.manuscript, a.journal), True)
+        elif a.action == "guidelines":
+            _out({k: {"name": v["name"], "items": len(v["items"])} for k, v in GUIDELINES.items()}, True)
+    except ValueError as exc:
+        _out({"error": str(exc)}, True)
+        sys.exit(4)
+
+
 def cmd_privacy_check(a):
     pm = _pm(a)
     try:
@@ -537,6 +564,24 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--comments", required=True)
     s.add_argument("--report", help="markdown report written by the reviewing agent")
     s.set_defaults(fn=cmd_peer_review)
+
+    s = sub.add_parser("writing", help="academic-writing metrics: check --file <md|docx> [--compare-with original]")
+    proj(s)
+    s.add_argument("action", choices=["check"])
+    s.add_argument("--file", required=True)
+    s.add_argument("--compare-with", help="original text to verify that ids/numbers/citations are unchanged")
+    s.set_defaults(fn=cmd_writing)
+
+    s = sub.add_parser("journal", help="journal-standards: checklist | cover-letter | guidelines")
+    proj(s)
+    s.add_argument("action", choices=["checklist", "cover-letter", "guidelines"])
+    s.add_argument("--manuscript")
+    s.add_argument("--guideline", default="generic", help="generic|CONSORT|STROBE|STARD|TRIPOD|PRISMA|ARRIVE|CARE")
+    s.add_argument("--guidelines-file", help="text file with the journal's author guidelines")
+    s.add_argument("--word-limit", type=int)
+    s.add_argument("--abstract-limit", type=int)
+    s.add_argument("--journal")
+    s.set_defaults(fn=cmd_journal)
 
     s = sub.add_parser("privacy-check", help="gate before any external transmission of workspace files")
     proj(s)

@@ -34,11 +34,18 @@ from .workflow_state import PlanError, WorkflowState, ready_steps, validate_plan
 INTENTS: list[tuple[str, list[str], list[str]]] = [
     ("progress", [r"where am i", r"progress", r"status", r"qayerda", r"holat", r"jarayon", r"прогресс", r"статус", r"где я"],
      ["research-progress"]),
+    ("writing", [r"\b(edit|polish|proofread|rewrite|tighten|improve (the|my) (english|writing|prose|text))\b", r"copy-?edit", r"language edit",
+                 r"tahrirla", r"uslub", r"ilmiy uslub", r"отредактируй", r"улучши (текст|язык)", r"стил"],
+     ["academic-writing"]),
+    ("journal", [r"journal (requirements|guidelines|standards|format)", r"reporting (guideline|checklist)", r"\b(consort|strobe|stard|tripod|prisma|arrive)\b",
+                 r"submission (ready|readiness|checklist)", r"adapt (to|for) (the )?journal", r"cover letter", r"xalqaro (nashr )?standart", r"jurnal talab", r"moslashtir",
+                 r"требован\w* журнала", r"стандарт\w* публикац", r"сопроводительн"],
+     ["journal-standards"]),
     ("audit", [r"\baudit", r"check (my|the) (manuscript|citations|references)", r"tekshir", r"audit", r"проверь", r"аудит"],
-     ["citation-verifier", "academic-integrity", "peer-reviewer"]),
+     ["citation-verifier", "academic-integrity", "journal-standards", "peer-reviewer"]),
     ("manuscript", [r"prepare (my|the|an?) (article|manuscript|paper)", r"write (my|the|an?) (article|manuscript|paper)", r"draft", r"maqola(ni)? (tayyorla|yoz)",
                     r"qo'lyozma", r"подготов\w* стать", r"напиш\w* стать", r"рукопис"],
-     ["manuscript-builder", "citation-verifier", "academic-integrity", "peer-reviewer"]),
+     ["manuscript-builder", "academic-writing", "citation-verifier", "academic-integrity", "journal-standards", "peer-reviewer"]),
     ("gaps", [r"research gap", r"\bgaps?\b", r"bo'shliq", r"пробел", r"gap"],
      ["literature-search", "paper-analyzer", "literature-review", "research-gap-finder"]),
     ("compare", [r"compare", r"comparison", r"matrix", r"synthes", r"review (these|the) papers", r"taqqosla", r"solishtir", r"сравн", r"обзор"],
@@ -143,6 +150,14 @@ def build_plan(pm: ProjectManager, request_text: str, *, overrides: dict[str, An
             step.inputs = {"manuscript_path": constraints.get("manuscript_path"), "field": cfg.field, "journal": cfg.target_journal}
         elif skill == "research-gap-finder":
             step.inputs = {"scope": cfg.topic, "constraints": constraints.get("constraints")}
+        elif skill == "academic-writing":
+            step.inputs = {"manuscript_path": constraints.get("manuscript_path"), "journal_style": cfg.target_journal}
+            if not constraints.get("manuscript_path") and "manuscript-builder" not in chain:
+                step.notes = "manuscript_path not given: ask the user which text to edit"
+        elif skill == "journal-standards":
+            step.inputs = {"manuscript_path": constraints.get("manuscript_path"), "guideline": constraints.get("guideline", "generic"), "journal": cfg.target_journal}
+            if not cfg.target_journal:
+                step.notes = "target_journal not set: formatting limits will be reported as not checked unless the user supplies guidelines"
         plan.steps.append(step)
         prev_id = step.id
     plan.approval_required = any(s.approval_required for s in plan.steps)

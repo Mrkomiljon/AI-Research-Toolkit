@@ -10,12 +10,14 @@ outputs, skip unneeded tasks, never fetch or analyze more papers than the user a
 | "Analyze this PDF…" / "Bu PDF ni tahlil qil" / "Проанализируй этот PDF" | `paper-analyzer` | host |
 | "Compare these papers…" / "Bu maqolalarni taqqosla" / "Сравни эти статьи" | `paper-analyzer` (missing only) → `literature-review` | host |
 | "Find research gaps…" / "Tadqiqot bo'shliqlarini top" / "Найди пробелы" | `literature-search` (if none) → `paper-analyzer` → `literature-review` → `research-gap-finder` | engine → host |
-| "Prepare my article…" / "Maqolamni tayyorla" / "Подготовь мою статью" | `manuscript-builder` → `citation-verifier` → `academic-integrity` → `peer-reviewer` | host → engine → host → host |
-| "Audit this manuscript…" / "Qo'lyozmani tekshir" / "Проверь рукопись" | `citation-verifier` → `academic-integrity` → `peer-reviewer` | engine → host → host |
+| "Prepare my article…" / "Maqolamni tayyorla" / "Подготовь мою статью" | `manuscript-builder` → `academic-writing` → `citation-verifier` → `academic-integrity` → `journal-standards` → `peer-reviewer` | host → host → engine → host → host → host |
+| "Audit this manuscript…" / "Qo'lyozmani tekshir" / "Проверь рукопись" | `citation-verifier` → `academic-integrity` → `journal-standards` → `peer-reviewer` | engine → host → host → host |
+| "Polish / edit my text…" / "Ilmiy uslubda tahrirla" / "Отредактируй текст" | `academic-writing` | host |
+| "Does it meet journal / STARD / TRIPOD requirements?" / "Xalqaro standartga moslashtir" / "Требования журнала" | `journal-standards` | host |
 | "Where am I in my research?" / "Tadqiqotimda qayerdaman?" / "Где я в исследовании?" | `research-progress` | engine |
 | Multi-stage or ambiguous goal | minimal dependency-aware plan; request only essential missing inputs | — |
 
-Detection precedence in the engine: progress → audit → manuscript → gaps → compare → analyze → search.
+Detection precedence in the engine: progress → writing → journal → audit → manuscript → gaps → compare → analyze → search.
 When keywords collide (e.g. "find papers and gaps"), the longer chain wins because it contains the shorter one.
 
 ## Required inputs per stage
@@ -31,3 +33,5 @@ When keywords collide (e.g. "find papers and gaps"), the longer chain wins becau
 | academic-integrity | author-stated AI use (tools, stages, human review) | journal policy text |
 | peer-reviewer | manuscript path, field | rubric / journal |
 | research-progress | nothing | milestones the user wants tracked |
+| academic-writing | text path | journal style (UK/US, limits), parts not to touch |
+| journal-standards | manuscript path, study design (guideline) | journal author guidelines text, target journal |

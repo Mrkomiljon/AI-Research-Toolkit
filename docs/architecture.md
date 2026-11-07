@@ -25,7 +25,7 @@ Every skill has an `executor`:
 | executor | skills | meaning |
 |---|---|---|
 | `engine` | literature-search, citation-verifier, research-progress | `rtk run` executes the whole step with checkpoints |
-| `host-skill` | paper-analyzer, literature-review, research-gap-finder, manuscript-builder, academic-integrity, peer-reviewer | the agent does the reading/writing; engine prepares inputs, validates outputs, checkpoints via `rtk step` |
+| `host-skill` | paper-analyzer, literature-review, research-gap-finder, manuscript-builder, academic-integrity, peer-reviewer, academic-writing, journal-standards | the agent does the reading/writing; engine prepares inputs, validates outputs, checkpoints via `rtk step` |
 
 ## Modules
 
@@ -39,7 +39,9 @@ Every skill has an `executor`:
 | `documents.py` | PyMuPDF text per page, IMRaD heuristic split, verbatim excerpt locator, injection scan, untrusted-data wrapper |
 | `validation.py` | DOI format, injection patterns, artifact presence/non-empty check, Agent-Skills frontmatter validation |
 | `providers/` | httpx clients with throttling, polite headers, honest error classes (`ProviderUnavailable`, `ExternalAccessDisabled`); mock transport injectable for tests |
-| `pipelines.py` | deterministic halves of the nine skills + validators for LLM text (`validate_evidence_links`, `validate_gap_report`, `check_manuscript_inputs`) |
+| `writing.py` | academic-writing metrics (sentence length, passive, hedges, undefined acronyms) and fact-preservation diff |
+| `journal.py` | reporting-guideline checklists (CONSORT/STROBE/STARD/TRIPOD/PRISMA/ARRIVE/CARE/generic), structure and declaration detection, cover letter |
+| `pipelines.py` | deterministic halves of the original nine skills + validators for LLM text (`validate_evidence_links`, `validate_gap_report`, `check_manuscript_inputs`) |
 | `workflow_state.py` | plan persistence, DAG validation (cycles, unknown deps, self-scheduling, `max_stages`), `ready_steps`, start/finish with retry limit and output re-check, resume |
 | `orchestrator.py` | multilingual intent routing, constraint extraction, reuse/skip logic, approval flags, engine handlers, `final_report` that lists only files on disk |
 | `progress.py` | stage status from artifacts + registry + events; counts, never estimates |

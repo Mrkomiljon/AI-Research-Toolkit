@@ -54,6 +54,8 @@ After the user approves: `rtk step approve-review -p <ws> s2`.
 | academic-integrity | `rtk integrity --ai-use <json>` |
 | peer-reviewer | `rtk peer-review --comments <json> --report <md>` |
 | research-progress | `rtk status` |
+| academic-writing | `rtk writing check --file <edited> --compare-with <original>` (ids/numbers/citations unchanged) |
+| journal-standards | `rtk journal checklist --manuscript <path> --guideline <KEY>`; `rtk journal cover-letter` |
 
 ## Reporting rule
 

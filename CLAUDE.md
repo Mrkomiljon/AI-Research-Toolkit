@@ -1,6 +1,6 @@
 # CLAUDE.md — project guidance for Claude Code
 
-This is the **AI Research Toolkit** (v1.1): ten Agent Skills (`skills/`) + deterministic Python engine
+This is the **AI Research Toolkit** (v1.2): twelve Agent Skills (`skills/`) + deterministic Python engine
 (`research_toolkit/`, CLI `rtk`). The rules below apply when you work on this repo and when you use the installed
 skills inside a research workspace. `AGENTS.md` holds the identical rules for Codex.
 

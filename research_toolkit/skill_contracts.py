@@ -57,9 +57,18 @@ CONTRACTS: dict[str, SkillContract] = {
         "research-progress", ("project-status.json", "research-progress.xlsx", "next-actions.md"), "progress",
         "engine", ApiCostCategory.NONE, False, "No evidence-free completion marks", (),
     ),
+    "academic-writing": SkillContract(
+        "academic-writing", ("writing-report.md", "edited-draft.md", "style-checklist.md"), "manuscript",
+        "host-skill", ApiCostCategory.NONE, True, "Facts, numbers, citations and claims unchanged by editing", ("manuscript_path", "journal_style"),
+    ),
+    "journal-standards": SkillContract(
+        "journal-standards", ("reporting-checklist.xlsx", "journal-compliance.md", "cover-letter-draft.docx"), "reviews",
+        "host-skill", ApiCostCategory.NONE, True, "Readiness check, not a guarantee of acceptance or compliance", ("manuscript_path", "guideline", "journal_guidelines"),
+    ),
 }
 
 PIPELINE_ORDER = [
     "literature-search", "paper-analyzer", "literature-review", "research-gap-finder",
-    "manuscript-builder", "citation-verifier", "academic-integrity", "peer-reviewer", "research-progress",
+    "manuscript-builder", "academic-writing", "citation-verifier", "academic-integrity", "journal-standards",
+    "peer-reviewer", "research-progress",
 ]

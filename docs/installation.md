@@ -1,5 +1,7 @@
 # Installation
 
+(Toolkit v1.2: 12 skills. Commands below are unchanged from 1.1.)
+
 Two parts are always needed: (1) the **skills** in your agent's skills directory and (2) the **Python engine**
 (`rtk`) that the skills call. Copying `SKILL.md` files alone is not enough.
 

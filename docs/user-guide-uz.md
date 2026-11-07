@@ -1,6 +1,6 @@
 # Foydalanuvchi qo'llanmasi (o'zbek tilida)
 
-AI Research Toolkit — Claude Code yoki OpenAI Codex ichida ishlaydigan 10 ta "skill" (ko'nikma) va ularga xizmat
+AI Research Toolkit — Claude Code yoki OpenAI Codex ichida ishlaydigan 12 ta "skill" (ko'nikma) va ularga xizmat
 qiluvchi Python dvigateli (`rtk`). U tadqiqotchiga **yordamchi**, avtonom tadqiqotchi emas: maqola topadi, tahlil
 qiladi, taqqoslaydi, bo'shliq nomzodlarini taklif qiladi, qo'lyozma tuzilmasini yaratadi, iqtiboslarni tekshiradi,
 taqriz simulyatsiyasini beradi va jarayonni hisoblaydi. Hech qachon maqola, DOI, natija yoki raqam o'ylab topmaydi.
@@ -51,6 +51,8 @@ yuboradi. "Local-first" — fayllar kompyuteringizda qoladi degani, lekin modeln
 | "Maqolamni tayyorla" | manuscript-builder → citation-verifier → academic-integrity → peer-reviewer | `manuscript/`, `reviews/` |
 | "Qo'lyozmamni tekshir" | citation-verifier → academic-integrity → peer-reviewer | `reviews/citation-audit.md`, `integrity-audit.md`, `peer-review-report.md` |
 | "Tadqiqotimda qayerdaman?" | research-progress | `progress/project-status.json`, `research-progress.xlsx`, `next-actions.md` |
+| "Matnni ilmiy uslubda tahrirla" | academic-writing | `manuscript/writing-report.md` (har bir o'zgarish ro'yxati), `edited-draft.md`, `style-checklist.md` |
+| "Maqolani xalqaro nashr standartlariga moslashtir" | journal-standards | `reviews/reporting-checklist.xlsx` (CONSORT/STROBE/STARD/TRIPOD/PRISMA…), `journal-compliance.md`, `cover-letter-draft.docx` |
 
 Orkestrator avval **rejani ko'rsatadi** (qaysi bosqichlar, qaysi fayllar, API xarajat toifasi: `none`/`low`/
 `potentially_paid`), ruxsat kerak bo'lsa so'raydi, keyin bajaradi.
@@ -101,6 +103,12 @@ Natijalar oddiy fayllar (`.md`, `.xlsx`, `.docx`, `.json`) — VS Code, Excel yo
 
 Agent yoki kompyuter o'chib qolsa, hamma narsa `workflow/plan.yaml` va `workflow/runs.jsonl` da saqlangan.
 "Davom et" deysiz — agent `rtk resume` qiladi, tugallangan va hali ham to'g'ri bosqichlarni qayta bajarmaydi.
+
+## 8a. Yozish va nashr standartlari (1.2 dan)
+
+- **academic-writing** matnni *qanday* yozilganini yaxshilaydi: aniqlik, qisqalik, zamon/majhul nisbat, qisqartmalar, hedging. *Nima* da'vo qilinganini o'zgartirmaydi: raqamlar, iqtiboslar va xulosalar o'zgarishsiz qoladi, dvigatel buni avtomatik solishtiradi. Har bir tahrir `writing-report.md` da "asl → tahrir (sabab)" ko'rinishida yoziladi, siz qabul qilasiz yoki rad etasiz.
+- **journal-standards** tadqiqot turiga mos xalqaro hisobot checklistini (masalan, diagnostika uchun STARD, AI modellari uchun TRIPOD+AI) va jurnal talablarini (so'z limiti, abstrakt formati, deklaratsiyalar: etika, manfaatlar to'qnashuvi, ma'lumot/kod mavjudligi, AI-use) tekshiradi, cover letter qoralamasini beradi. Jurnal talablarini siz `reviews/journal-guidelines.txt` ga qo'yasiz; bo'lmasa limitlar "tekshirilmadi" deb yoziladi.
+- Plagiat bo'yicha: `academic-integrity` to'g'ri iqtibos va parafraza qoidalarini tekshiradi; o'xshashlik detektorlarini aldash yoki "plagiatdan xoli" sertifikat — yo'q.
 
 ## 9. Nima qilmaydi
 

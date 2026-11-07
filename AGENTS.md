@@ -1,6 +1,6 @@
 # AGENTS.md — research reliability and safety rules (Codex and any other agent)
 
-This repository is the **AI Research Toolkit**: ten Agent Skills in `skills/` plus a deterministic Python engine
+This repository is the **AI Research Toolkit**: twelve Agent Skills in `skills/` plus a deterministic Python engine
 (`research_toolkit/`, CLI `rtk`). Agents working here, or using the installed skills in a research workspace, follow
 these rules. They mirror `CLAUDE.md`.
 
