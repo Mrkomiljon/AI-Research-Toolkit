@@ -1,4 +1,4 @@
-# AI Research Toolkit (v1.2)
+# AI Research Toolkit (v1.3)
 
 Local-first, skill-based research workflow toolkit for **Claude Code** and **OpenAI Codex**: eleven specialist Agent
 Skills plus a mandatory `research-orchestrator`, backed by a deterministic Python engine (`rtk`). It helps a researcher
@@ -13,7 +13,7 @@ UI languages: Uzbek, English, Russian (skills are written in English; the agent 
 | Skill | Does | Key gate |
 |---|---|---|
 | `research-orchestrator` | plans a dependency-aware workflow, previews it, gets approvals, runs/delegates, checkpoints, reports what is on disk | never fabricates outputs, never bypasses human review |
-| `literature-search` | OpenAlex/Crossref/(Semantic Scholar) search, query log, dedup, ranking, access levels | never invents articles; reports coverage |
+| `literature-search` | OpenAlex/Crossref/(Semantic Scholar) search, query log, dedup, ranking, access levels; **open-access full-text fetch** (arXiv, Europe PMC, Unpaywall, OpenAlex OA) into `papers/PDFs/` | never invents articles; only open-access copies; reports coverage |
 | `paper-analyzer` | objective/methods/sample/outcomes/limitations with page locators and verbatim excerpts | explicit `ABSTRACT_ONLY` if no full text |
 | `literature-review` | comparison matrix + evidence-linked synthesis | every claim linked to `ev-`/`src-` ids |
 | `research-gap-finder` | candidate gaps, hypotheses, feasibility | candidate gap ≠ proven novelty |
@@ -177,7 +177,7 @@ rtk validate-skills --skills-dir skills
 pytest -q
 ```
 
-81 tests (unit, integration, acceptance) pass offline on Windows 11 / Python 3.11.9 (2026-11-07); CI runs them on
+87 tests (unit, integration, acceptance) pass offline on Windows 11 / Python 3.11.9 (2026-11-07); CI runs them on
 Ubuntu and Windows with Python 3.11 and 3.12. Acceptance criteria from the specification:
 
 | # | Criterion | Status |
@@ -195,7 +195,7 @@ Ubuntu and Windows with Python 3.11 and 3.12. Acceptance criteria from the speci
 
 ## Known limitations
 
-- Full texts are never downloaded; you supply PDFs. Scanned PDFs without a text layer are not OCR'd.
+- Only open-access full texts are fetched (`rtk fetch`); paywalled papers stay abstract-only unless you add the PDF. Unpaywall needs `RTK_CONTACT_EMAIL`. Scanned PDFs without a text layer are not OCR'd.
 - Author-year citation matching is heuristic; use `\cite{}`, `[@key]` or `[src-…]` for reliable audits.
 - Intent routing is keyword-based; ambiguous requests produce an empty plan and a question, by design.
 - Semantic Scholar public tier is rate-limited; it is optional.
@@ -208,7 +208,7 @@ Ubuntu and Windows with Python 3.11 and 3.12. Acceptance criteria from the speci
 export_report, build_templates · `templates/` · `examples/agriculture-research/` · `tests/` · `docs/` (installation,
 user-guide-uz, architecture, security) · `.github/workflows/ci.yml`.
 
-Published on PyPI: https://pypi.org/project/ai-research-toolkit/ (v1.2.0, 2026-11-07).
+Published on PyPI: https://pypi.org/project/ai-research-toolkit/ (v1.3.0, 2026-11-07).
 
 ## Releasing to PyPI (maintainers)
 

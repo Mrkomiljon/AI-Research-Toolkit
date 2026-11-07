@@ -102,7 +102,8 @@ def build_plan(pm: ProjectManager, request_text: str, *, overrides: dict[str, An
         # ---- reuse verified outputs / skip unneeded work --------------------------------------------
         if skill == "literature-search":
             step.inputs = {"topic": constraints.get("topic") or cfg.topic, "year_from": constraints.get("year_from", cfg.year_from),
-                           "year_to": constraints.get("year_to", cfg.year_to), "target_count": target}
+                           "year_to": constraints.get("year_to", cfg.year_to), "target_count": target,
+                           "fetch_full_text": bool(constraints.get("fetch_full_text", True)) and cfg.privacy.allow_external_apis}
             if len(registry) >= target and check_artifacts(pm.workspace, list(c.required_outputs), ["literature", "sources"]).ok:
                 step.status = StepStatus.SKIPPED
                 step.notes = f"registry already holds {len(registry)} sources (>= {target}); reuse. Re-run explicitly to search again."
@@ -116,7 +117,8 @@ def build_plan(pm: ProjectManager, request_text: str, *, overrides: dict[str, An
                 wanted = [s for s in wanted if registry.get(s) and registry.get(s).access_level == AccessLevel.FULL_TEXT]
             todo = [s for s in wanted if s not in analyzed]
             search_pending = any(st.skill == "literature-search" and st.status == StepStatus.PLANNED for st in plan.steps)
-            step.inputs = {"source_ids": todo, "already_analyzed": sorted(set(wanted) & analyzed), "question": constraints.get("question")}
+            step.inputs = {"source_ids": todo, "already_analyzed": sorted(set(wanted) & analyzed), "question": constraints.get("question"),
+                           "fetch_full_text": cfg.privacy.allow_external_apis}
             step.notes = f"{len(set(wanted) & analyzed)} source(s) already analyzed and reused; {len(todo)} to analyze"
             if search_pending:
                 step.inputs["source_ids"] = "resolve after literature-search completes (rtk sources list); analyze only sources the user selected"
@@ -204,9 +206,17 @@ EngineHandler = Callable[[ProjectManager, WorkflowPlan, WorkflowStep, dict[str, 
 
 def _h_literature_search(pm, plan, step, ctx):
     provs: list[ScholarlyProvider] = ctx.get("providers") or make_providers()
-    return pipelines.literature_search(pm, topic=step.inputs["topic"], providers=provs, year_from=step.inputs.get("year_from"),
-                                       year_to=step.inputs.get("year_to"), target_count=int(step.inputs.get("target_count") or 20),
-                                       run_id=plan.run_id, step_id=step.id)
+    res = pipelines.literature_search(pm, topic=step.inputs["topic"], providers=provs, year_from=step.inputs.get("year_from"),
+                                      year_to=step.inputs.get("year_to"), target_count=int(step.inputs.get("target_count") or 20),
+                                      run_id=plan.run_id, step_id=step.id)
+    if step.inputs.get("fetch_full_text") and res.get("selected"):
+        from .fulltext import fetch_full_text
+
+        try:
+            res["fulltext"] = fetch_full_text(pm, res["selected"], fetcher=ctx.get("fetcher"), run_id=plan.run_id, step_id=step.id)["counts"]
+        except Exception as exc:  # noqa: BLE001 - fetching is best effort; the search itself succeeded
+            res["errors"] = (res.get("errors") or []) + [f"full-text fetch: {type(exc).__name__}: {exc}"]
+    return res
 
 
 def _h_citation_verifier(pm, plan, step, ctx):

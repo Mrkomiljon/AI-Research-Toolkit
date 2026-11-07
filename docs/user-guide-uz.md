@@ -72,7 +72,7 @@ Orkestrator avval **rejani ko'rsatadi** (qaysi bosqichlar, qaysi fayllar, API xa
 | `ABSTRACT_ONLY` | faqat annotatsiya bor | metod/natija tafsilotlari haqida da'vo qilib bo'lmaydi |
 | `METADATA_ONLY` | faqat sarlavha/mualliflar/DOI | faqat bibliografik ma'lumot |
 
-PDF qo'shish: faylni `papers/PDFs/` ga ko'chiring va agentga ayting, u `rtk sources attach-pdf` bilan bog'laydi.
+To'liq matn olish: agent `rtk fetch` bilan ochiq (open-access) PDF'larni avtomatik topadi — arXiv, Europe PMC, Unpaywall, OpenAlex — va `papers/PDFs/` ga yuklaydi; manba `FULL_TEXT` bo'ladi. Pullik maqolalar `ABSTRACT_ONLY` qoladi: PDF'ni o'zingiz `papers/PDFs/` ga ko'chiring va agentga ayting (`rtk sources attach-pdf`).
 
 ## 6. Dalil (evidence) tizimi
 

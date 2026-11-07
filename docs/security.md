@@ -27,6 +27,7 @@ author accepts that.
 | Destination | Data | When |
 |---|---|---|
 | OpenAlex / Crossref / Semantic Scholar | search query string, year filters, DOIs, optional contact e-mail/API key | `rtk search`, `rtk verify-citations`, `rtk sources verify`; never PDFs or manuscripts |
+| arXiv / Europe PMC / Unpaywall / OA publisher hosts | title or DOI of the paper being fetched (Unpaywall also receives `RTK_CONTACT_EMAIL`) | `rtk fetch`; downloads only open-access PDFs, never credentials |
 | Model provider (via the agent) | whatever the agent reads or you paste | any host-skill step |
 | Nowhere else | no telemetry, no uploads, no e-mail, no submissions | — |
 

@@ -68,6 +68,68 @@ def extract_pdf_text(path: Path) -> ParsedDocument:
     return parsed
 
 
+def extract_jats_xml(path: Path) -> ParsedDocument:
+    """Europe PMC fullTextXML (JATS). Each top-level <sec> becomes one pseudo-page so locators stay meaningful."""
+    import xml.etree.ElementTree as ET
+
+    path = Path(path)
+    root = ET.fromstring(path.read_text(encoding="utf-8", errors="replace"))
+
+    def text_of(el) -> str:
+        return " ".join(" ".join(el.itertext()).split())
+
+    pages: list[PageText] = []
+    sections: dict[str, str] = {}
+    abstract = root.find(".//abstract")
+    if abstract is not None:
+        pages.append(PageText(page=1, text="Abstract\n" + text_of(abstract)))
+        sections["abstract"] = text_of(abstract)
+    body = root.find(".//body")
+    secs = list(body.findall("sec")) if body is not None else []
+    if not secs and body is not None:
+        secs = [body]
+    for sec in secs:
+        title_el = sec.find("title")
+        title = text_of(title_el) if title_el is not None else "Section"
+        paras = [text_of(p) for p in sec.iter("p")]
+        content = "\n".join(p for p in paras if p)
+        pages.append(PageText(page=len(pages) + 1, text=f"{title}\n{content}"))
+        key = title.lower().strip().rstrip(":")
+        key = re.sub(r"^\d+(\.\d+)*\.?\s*", "", key)
+        for canon in SECTION_HEADINGS:
+            if canon in key:
+                sections[canon] = (sections.get(canon, "") + "\n" + content).strip()
+                break
+    parsed = ParsedDocument(path=str(path), pages=pages)
+    parsed.char_count = sum(len(p.text) for p in pages)
+    parsed.sections = sections or split_sections(parsed.full_text)
+    for p in pages:
+        parsed.injection_findings.extend(scan_for_injection(p.text, locator=f"p.{p.page}"))
+    return parsed
+
+
+def extract_plain_text(path: Path, chunk_chars: int = 4000) -> ParsedDocument:
+    text = Path(path).read_text(encoding="utf-8", errors="replace")
+    chunks = [text[i : i + chunk_chars] for i in range(0, len(text), chunk_chars)] or [""]
+    pages = [PageText(page=i + 1, text=c) for i, c in enumerate(chunks)]
+    parsed = ParsedDocument(path=str(path), pages=pages)
+    parsed.char_count = len(text)
+    parsed.sections = split_sections(text)
+    for p in pages:
+        parsed.injection_findings.extend(scan_for_injection(p.text, locator=f"p.{p.page}"))
+    return parsed
+
+
+def extract_document(path: Path) -> ParsedDocument:
+    """Dispatch on file type: .pdf (PyMuPDF), .xml (JATS from Europe PMC), anything else as plain text."""
+    suffix = Path(path).suffix.lower()
+    if suffix == ".pdf":
+        return extract_pdf_text(path)
+    if suffix in (".xml", ".nxml"):
+        return extract_jats_xml(path)
+    return extract_plain_text(path)
+
+
 def split_sections(text: str) -> dict[str, str]:
     """Heuristic IMRaD splitter: a heading is a short line equal to a known section name."""
     sections: dict[str, str] = {}

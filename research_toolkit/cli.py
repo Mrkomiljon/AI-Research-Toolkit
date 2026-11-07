@@ -201,7 +201,32 @@ def cmd_search(a):
     except pipelines.StepBlocked as exc:
         _out({"status": "blocked", "error": str(exc), "partial_artifacts": exc.partial_artifacts}, a.json)
         sys.exit(4)
+    if a.fetch:
+        from .fulltext import fetch_full_text
+
+        res["fulltext"] = fetch_full_text(pm, res["selected"])["counts"]
     _out(res, a.json)
+
+
+def cmd_fetch(a):
+    from .fulltext import DEFAULT_ORDER, fetch_full_text
+
+    pm = _pm(a)
+    order = tuple(x.strip() for x in a.sources.split(",")) if a.sources else DEFAULT_ORDER
+    try:
+        res = fetch_full_text(pm, a.source_ids or None, order=order, limit=a.limit, overwrite=a.overwrite)
+    except ApprovalRequired as exc:
+        _out({"error": str(exc)}, True)
+        sys.exit(3)
+    if a.prepare:
+        for r in res["results"]:
+            if r["status"] in ("downloaded", "already_present"):
+                try:
+                    pipelines.prepare_paper_analysis(pm, r["source_id"])
+                except pipelines.StepBlocked as exc:
+                    r["prepare_error"] = str(exc)
+    _out({"counts": res["counts"], "contact_email_set": res["contact_email_set"], "log": res["log"],
+          "results": [{k: r.get(k) for k in ("source_id", "status", "provider", "license", "path", "error")} for r in res["results"]]}, True)
 
 
 def cmd_sources(a):
@@ -262,7 +287,11 @@ def cmd_sources(a):
 def cmd_analyze(a):
     pm = _pm(a)
     if a.action == "prepare":
-        _out(pipelines.prepare_paper_analysis(pm, a.source_id, a.pdf), True)
+        try:
+            _out(pipelines.prepare_paper_analysis(pm, a.source_id, a.pdf, fetch=a.fetch), True)
+        except (pipelines.StepBlocked, ApprovalRequired) as exc:
+            _out({"error": str(exc)}, True)
+            sys.exit(4)
     elif a.action == "finalize":
         analysis = read_json(Path(a.analysis_json))
         try:
@@ -496,7 +525,17 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--include", action="append")
     s.add_argument("--exclude", action="append")
     s.add_argument("--authorized", action="store_true")
+    s.add_argument("--fetch", action="store_true", help="also try to download open-access PDFs for the selected papers")
     s.set_defaults(fn=cmd_search)
+
+    s = sub.add_parser("fetch", help="download open-access full texts (arXiv, Europe PMC, Unpaywall, OpenAlex OA) into papers/PDFs/")
+    proj(s)
+    s.add_argument("--source-ids", nargs="*")
+    s.add_argument("--limit", type=int)
+    s.add_argument("--sources", help="comma order, default openalex,arxiv,europepmc,unpaywall")
+    s.add_argument("--overwrite", action="store_true")
+    s.add_argument("--prepare", action="store_true", help="run `analyze prepare` for every fetched PDF")
+    s.set_defaults(fn=cmd_fetch)
 
     s = sub.add_parser("sources", help="source registry: list|add|attach-pdf|verify|stats")
     proj(s)
@@ -515,6 +554,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("action", choices=["prepare", "finalize"])
     s.add_argument("source_id")
     s.add_argument("--pdf")
+    s.add_argument("--fetch", action="store_true", help="try to download an open-access PDF first")
     s.add_argument("--analysis-json")
     s.set_defaults(fn=cmd_analyze)
 

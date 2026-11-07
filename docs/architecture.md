@@ -38,6 +38,7 @@ Every skill has an `executor`:
 | `evidence_store.py` | append-only JSONL; refuses unknown sources; LLM-only readings can never be `verified` |
 | `documents.py` | PyMuPDF text per page, IMRaD heuristic split, verbatim excerpt locator, injection scan, untrusted-data wrapper |
 | `validation.py` | DOI format, injection patterns, artifact presence/non-empty check, Agent-Skills frontmatter validation |
+| `fulltext.py` | open-access PDF discovery/download: OpenAlex OA locations, arXiv (id or title match), Europe PMC, Unpaywall (needs contact e-mail); logs provider/licence per paper |
 | `providers/` | httpx clients with throttling, polite headers, honest error classes (`ProviderUnavailable`, `ExternalAccessDisabled`); mock transport injectable for tests |
 | `writing.py` | academic-writing metrics (sentence length, passive, hedges, undefined acronyms) and fact-preservation diff |
 | `journal.py` | reporting-guideline checklists (CONSORT/STROBE/STARD/TRIPOD/PRISMA/ARRIVE/CARE/generic), structure and declaration detection, cover letter |

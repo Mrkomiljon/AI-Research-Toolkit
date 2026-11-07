@@ -10,7 +10,7 @@ import json
 import re
 from typing import Any
 
-from .documents import ParsedDocument, extract_pdf_text, find_excerpt
+from .documents import ParsedDocument, extract_document, find_excerpt
 from .evidence_store import EvidenceStore
 from .exporters import (
     read_json,
@@ -179,20 +179,35 @@ def rank_sources(sources: list[SourceRecord]) -> list[SourceRecord]:
 ANALYSIS_FIELDS = ["objective", "methods", "sample", "outcomes", "limitations"]
 
 
-def prepare_paper_analysis(pm: ProjectManager, source_id: str, pdf_path: str | None = None) -> dict[str, Any]:
-    """Extract text (if a PDF exists), label access level, scan for injected instructions, write a skeleton."""
+def prepare_paper_analysis(pm: ProjectManager, source_id: str, pdf_path: str | None = None, *, fetch: bool = False, fetcher=None) -> dict[str, Any]:
+    """Extract text (if a PDF exists), label access level, scan for injected instructions, write a skeleton.
+
+    With fetch=True an open-access PDF is looked up first (arXiv, Europe PMC, Unpaywall, OpenAlex OA locations)."""
     registry = SourceRegistry(pm.workspace)
     src = registry.get(source_id)
     if src is None:
         raise StepBlocked(f"unknown source {source_id}; register it first")
     out_dir = pm.workspace / "analysis" / source_id
     out_dir.mkdir(parents=True, exist_ok=True)
+    fetch_info = None
+    for auto in (f"papers/PDFs/{source_id}.pdf", f"papers/fulltext/{source_id}.xml"):
+        if not (pdf_path or src.pdf_path) and (pm.workspace / auto).exists():
+            src.pdf_path = auto
+            registry.upsert(src)
+            registry.save()
+            break
+    if fetch and not (pdf_path or (src.pdf_path and (pm.workspace / src.pdf_path).exists())):
+        from .fulltext import fetch_full_text
+
+        fetch_info = fetch_full_text(pm, [source_id], fetcher=fetcher)["results"][0]
+        registry = SourceRegistry(pm.workspace)
+        src = registry.get(source_id)
     pdf_rel = pdf_path or src.pdf_path
     parsed: ParsedDocument | None = None
     if pdf_rel:
         pdf_abs = pm.resolve(pdf_rel)
         if pdf_abs.exists():
-            parsed = extract_pdf_text(pdf_abs)
+            parsed = extract_document(pdf_abs)
             src.pdf_path = pdf_rel.replace("\\", "/")
             src.access_level = AccessLevel.FULL_TEXT if parsed.is_probably_full_text() else AccessLevel.ABSTRACT_ONLY
             registry.upsert(src)
@@ -212,6 +227,8 @@ def prepare_paper_analysis(pm: ProjectManager, source_id: str, pdf_path: str | N
         "pdf_path": src.pdf_path,
         "pages": [{"page": p.page, "chars": len(p.text), "text": p.text} for p in parsed.pages] if parsed else [],
         "sections_detected": list(parsed.sections) if parsed else [],
+        "sections": parsed.sections if parsed else {},
+        "fetch": fetch_info,
         "abstract": src.abstract,
         "injection_findings": [
             {"pattern": f.pattern, "locator": f.locator, "snippet": f.snippet} for f in (parsed.injection_findings if parsed else [])
@@ -233,6 +250,7 @@ def prepare_paper_analysis(pm: ProjectManager, source_id: str, pdf_path: str | N
     skel_path = out_dir / "paper-analysis.skeleton.json"
     write_json(skel_path, skeleton)
     return {"source_id": source_id, "access_level": access.value, "pages": len(parsed.pages) if parsed else 0,
+            "sections_detected": extracted["sections_detected"], "fetch": fetch_info,
             "injection_findings": extracted["injection_findings"], "skeleton": str(skel_path),
             "extracted_text": str(out_dir / "extracted-text.json")}
 

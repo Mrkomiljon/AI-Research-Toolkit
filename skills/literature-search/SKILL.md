@@ -1,6 +1,6 @@
 ---
 name: literature-search
-description: Search scholarly metadata APIs (OpenAlex, Crossref, optional Semantic Scholar) for papers on a topic with year range and target count, record the exact query, deduplicate, rank, and register sources with honest access levels. Use when the user asks to find papers, articles, studies or literature on a topic (uz "maqolalar top", ru "найди статьи"). Never invents articles.
+description: Search scholarly metadata APIs (OpenAlex, Crossref, optional Semantic Scholar) for papers on a topic with year range and target count, record the exact query, deduplicate, rank, register sources with honest access levels, and fetch open-access full texts (arXiv, Europe PMC, Unpaywall, OpenAlex OA) into papers/PDFs/. Use when the user asks to find papers, articles, studies or literature on a topic (uz "maqolalar top", ru "найди статьи"). Never invents articles.
 ---
 
 # literature-search
@@ -30,21 +30,29 @@ that did not come from a provider response.
    Inside an orchestrated plan the same step is `rtk run -p <ws> --step s1`.
 4. Read the result: `coverage` (requested vs delivered vs shortfall), `access_levels`, `errors`. If a provider was
    unavailable, say so; do not fill the gap by inventing records.
-5. Present the top results from `literature/papers.csv` with title, year, venue, DOI, access level and citation count.
-   Explain that `ABSTRACT_ONLY`/`METADATA_ONLY` means no full text was retrieved; PDFs must be supplied by the user
+5. Fetch open-access full texts for the selected papers (or pass `--fetch` to `rtk search`):
+   ```bash
+   rtk fetch -p <ws> --source-ids <ids…> --prepare      # or --limit 20 for the whole registry
+   ```
+   Tries OpenAlex OA locations, arXiv (title/id match), Europe PMC (PMC open access) and Unpaywall (only when
+   `RTK_CONTACT_EMAIL` is set). Downloaded PDFs land in `papers/PDFs/<source_id>.pdf`, the source becomes
+   `FULL_TEXT`, and `literature/fulltext-log.json` records provider, URL and licence per paper. Paywalled papers stay
+   `ABSTRACT_ONLY`; never try to bypass paywalls or institutional logins. The user can still add PDFs manually
    (`rtk sources attach-pdf --source-id <id> --pdf papers/PDFs/<file>.pdf`).
-6. Let the user remove off-topic hits before analysis; selection is theirs.
+6. Present the top results from `literature/papers.csv` with title, year, venue, DOI, access level (after fetching)
+   and citation count. Say how many full texts were obtained and which remain abstract-only.
+7. Let the user remove off-topic hits before analysis; selection is theirs.
 
 ## Outputs (all written by the engine)
 
 `literature/search-strategy.md`, `literature/papers.xlsx`, `literature/papers.csv`, `sources/references.bib`,
-`literature/search-log.json`; registry `sources/sources.json` updated with dedup (DOI exact, then title similarity ≥ 0.92 with year ±1).
+`literature/search-log.json`, `literature/fulltext-log.json` and fetched `papers/PDFs/<source_id>.pdf`; registry `sources/sources.json` updated with dedup (DOI exact, then title similarity ≥ 0.92 with year ±1).
 
 ## Validation / key gate
 
 - Every record has `provider`, `retrieved_at`, `access_level`, `verification_status` (`verified` only when a DOI came from the provider).
 - Coverage and shortfall are stated explicitly. "20 requested, 14 delivered" is a valid result; "20 delivered" with 6 invented is not.
-- No full texts are downloaded; open-access PDF links are noted, not fetched, in this version.
+- Only open-access full texts are downloaded, each with provider/licence logged; paywalled papers are reported as such.
 
 ## Failure behavior
 
