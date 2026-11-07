@@ -10,6 +10,19 @@ Two parts are always needed: (1) the **skills** in your agent's skills directory
 - Claude Code **or** OpenAI Codex, authenticated with its provider (independent of this toolkit)
 - Internet access for OpenAlex/Crossref (free, no key); optional Semantic Scholar key
 
+## Costs and subscriptions
+
+The toolkit itself is free (MIT) and OpenAlex/Crossref need no key or payment. What you pay for is the **agent**:
+
+| Agent | What you need | Notes |
+|---|---|---|
+| Claude Code | Claude Pro or Max subscription, **or** an Anthropic API key (pay per token) | Pro has tighter hourly limits; long research sessions fit Max better |
+| Codex | ChatGPT Plus / Pro / Business / Edu / Enterprise, **or** an OpenAI API key | sign in with `codex login` |
+
+One agent is enough; the skills behave the same in both. Semantic Scholar is optional (free public tier, rate
+limited; a free API key raises limits). Prices and limits change often: check claude.com/pricing and
+openai.com/chatgpt/pricing before advising users.
+
 ## Route A — Skills CLI (after the repository is published on GitHub)
 
 ```bash

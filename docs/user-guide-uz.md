@@ -17,6 +17,17 @@ python scripts/doctor.py
 
 Agentni (Claude Code yoki Codex) `C:\Users\siz\tadqiqot` papkasida oching. Batafsil: `docs/installation.md`.
 
+## 1a. Xarajatlar va obunalar
+
+Toolkit'ning o'zi bepul (MIT), OpenAlex va Crossref API'lari ham bepul va kalit talab qilmaydi. Pul faqat agent uchun to'lanadi:
+
+| Agent | Nima kerak | Izoh |
+|---|---|---|
+| Claude Code | Claude Pro yoki Max obunasi, **yoki** Anthropic API kaliti (token bo'yicha to'lov) | Pro'da soatlik limit tezroq tugaydi; uzun sessiyalar uchun Max qulay |
+| Codex | ChatGPT Plus / Pro / Business / Edu / Enterprise, **yoki** OpenAI API kaliti | `codex login` bilan kiriladi |
+
+Bitta agent yetarli; skill'lar ikkalasida bir xil ishlaydi. Narxlar va limitlar tez o'zgaradi: claude.com/pricing va openai.com/chatgpt/pricing sahifalarini tekshiring.
+
 ## 2. Loyihani boshlash
 
 Agentga yozing:

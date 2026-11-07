@@ -28,6 +28,19 @@ UI languages: Uzbek, English, Russian (skills are written in English; the agent 
 Python 3.11+, pip, Claude Code or Codex (authenticated), internet for the free metadata APIs. Node.js only for the
 `npx skills` route. Windows 11 / Linux tested.
 
+## Costs and subscriptions
+
+The toolkit itself is free (MIT) and OpenAlex/Crossref need no key or payment. What you pay for is the **agent**:
+
+| Agent | What you need | Notes |
+|---|---|---|
+| Claude Code | Claude Pro or Max subscription, **or** an Anthropic API key (pay per token) | Pro has tighter hourly limits; long research sessions fit Max better |
+| Codex | ChatGPT Plus / Pro / Business / Edu / Enterprise, **or** an OpenAI API key | sign in with `codex login` |
+
+One agent is enough; the skills behave the same in both. Semantic Scholar is optional (free public tier, rate
+limited; a free API key raises limits). Prices and limits change often: check claude.com/pricing and
+openai.com/chatgpt/pricing before advising users.
+
 ## 1-minute quickstart
 
 ```bash
@@ -137,7 +150,7 @@ Ubuntu and Windows with Python 3.11 and 3.12. Acceptance criteria from the speci
 | 6 | failed API step → partial artifacts + truthful `blocked` | pass |
 | 7 | interruption persists state; resume skips valid steps | pass |
 | 8 | injected instruction in a PDF does not change orchestration | pass |
-| 9 | Claude Code and Codex run the same skill workflow | installer/manifest part passes (`test_cross_agent.py`); the conversational part (both agents following the same plan in natural language) has **not** been exercised yet — release-checklist item |
+| 9 | Claude Code and Codex run the same skill workflow | installer/manifest part passes (`test_cross_agent.py`). Conversational run verified in **Claude Code** (2026-11-07: `claude -p` with `Use research-orchestrator. Initialize … then find 3 papers` created the workspace, ran the plan and reported only on-disk files). **Codex** conversational run still pending (account/model login issue on the test machine) |
 | 10 | workflow summary matches artifacts on disk | pass |
 
 ## Known limitations
