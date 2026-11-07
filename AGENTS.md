@@ -27,7 +27,7 @@ these rules. They mirror `CLAUDE.md`.
 - Skills are discovered from `.agents/skills/<name>/SKILL.md` (project) after `python scripts/install.py --agent codex`
   or `npx skills add <owner>/AI-Research-Toolkit -a codex`. Natural-language invocation is the universal fallback:
   "Use research-orchestrator. Initialize my PhD research on …".
-- The engine must be installed (`python -m pip install -e .`), otherwise `rtk` commands in the skills fail; say so instead of pretending.
+- The engine must be installed (`python -m pip install ai-research-toolkit` or `python -m pip install -e .`), otherwise `rtk` commands in the skills fail; say so instead of pretending.
 - Work in the user's language (Uzbek, Russian, English); keep file names and ids as produced by the engine.
 
 ## Working in this repository (contributors)

@@ -26,7 +26,7 @@ openai.com/chatgpt/pricing before advising users.
 ## Route 0 — Fastest (no clone)
 
 ```bash
-python -m pip install "git+https://github.com/Mrkomiljon/AI-Research-Toolkit.git"
+python -m pip install ai-research-toolkit
 cd /path/to/your/research-folder
 npx skills add Mrkomiljon/AI-Research-Toolkit -a claude-code   # and/or -a codex
 rtk --help

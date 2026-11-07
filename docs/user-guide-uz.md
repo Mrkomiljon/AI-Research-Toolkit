@@ -8,7 +8,7 @@ taqriz simulyatsiyasini beradi va jarayonni hisoblaydi. Hech qachon maqola, DOI,
 ## 1. O'rnatish (qisqa)
 
 ```bash
-python -m pip install "git+https://github.com/Mrkomiljon/AI-Research-Toolkit.git"
+python -m pip install ai-research-toolkit
 cd C:\Users\siz\tadqiqot
 npx skills add Mrkomiljon/AI-Research-Toolkit -a claude-code   # yoki -a codex
 ```

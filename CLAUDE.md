@@ -22,7 +22,7 @@ skills inside a research workspace. `AGENTS.md` holds the identical rules for Co
 Skills live in `.claude/skills/<name>/` after `python scripts/install.py --agent claude` or
 `npx skills add <owner>/AI-Research-Toolkit -a claude-code`. Invoke by natural language ("Use research-orchestrator. …")
 — that also works in Codex, so documentation never relies on slash syntax. The engine must be installed
-(`python -m pip install -e .`); if `rtk` is missing, say so.
+(`python -m pip install ai-research-toolkit` or `python -m pip install -e .`); if `rtk` is missing, say so.
 
 Typical loop: `rtk status` → `rtk plan "<request>"` → show plan → approvals → `rtk --json run` → specialist
 SKILL.md for host steps → validators (`rtk analyze finalize`, `rtk review validate-links`, `rtk verify-citations`) →

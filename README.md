@@ -44,8 +44,8 @@ openai.com/chatgpt/pricing before advising users.
 ## 1-minute quickstart
 
 ```bash
-# engine (no clone needed)
-python -m pip install "git+https://github.com/Mrkomiljon/AI-Research-Toolkit.git"
+# engine from PyPI (no clone needed)
+python -m pip install ai-research-toolkit
 # skills into your research folder (pick the agent you use; both is fine)
 cd /path/to/your/research-folder
 npx skills add Mrkomiljon/AI-Research-Toolkit -a claude-code
@@ -193,6 +193,8 @@ Ubuntu and Windows with Python 3.11 and 3.12. Acceptance criteria from the speci
 `skills/` canonical skills · `research_toolkit/` engine · `scripts/` install, doctor, init_project, validate_sources,
 export_report, build_templates · `templates/` · `examples/agriculture-research/` · `tests/` · `docs/` (installation,
 user-guide-uz, architecture, security) · `.github/workflows/ci.yml`.
+
+Published on PyPI: https://pypi.org/project/ai-research-toolkit/ (v1.1.0, 2026-11-07).
 
 ## Releasing to PyPI (maintainers)
 

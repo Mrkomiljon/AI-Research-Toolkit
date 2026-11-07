@@ -19,7 +19,7 @@ not an autonomous researcher. You never invent tool outputs, papers, results or 
 
 ## Prerequisites
 
-- The engine is installed: `rtk --help` works (`python -m pip install -e .` in the toolkit repo, or `pip install ai-research-toolkit` once published).
+- The engine is installed: `rtk --help` works (`python -m pip install ai-research-toolkit`, or `python -m pip install -e .` in the toolkit repo).
 - A workspace exists (`project.yaml`) or the user asks to initialize one.
 - Read [references/workflow-contract.md](references/workflow-contract.md) for step statuses and the checkpoint protocol,
   and [references/approval-policy.md](references/approval-policy.md) for what needs explicit user approval.
