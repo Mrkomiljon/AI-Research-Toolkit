@@ -136,8 +136,12 @@ def split_sections(text: str) -> dict[str, str]:
     sections: dict[str, str] = {}
     current = "front_matter"
     buf: list[str] = []
+    alias = {"experimental results": "results", "results and discussion": "results", "material and methods": "materials and methods",
+             "methods and materials": "materials and methods", "experimental setup": "methods", "experiments": "results",
+             "conclusions and future work": "conclusions", "limitations and future work": "limitations", "related works": "related work"}
     for line in text.splitlines():
-        stripped = re.sub(r"^\s*(\d+(\.\d+)*\.?)?\s*", "", line).strip().rstrip(":").lower()
+        stripped = re.sub(r"^\s*((\d+(\.\d+)*\.?)|([IVXivx]+\.?))\s*", "", line).strip().rstrip(":.").lower()
+        stripped = alias.get(stripped, stripped)
         if stripped in SECTION_HEADINGS and len(line.strip()) < 60:
             sections[current] = "\n".join(buf).strip()
             current = stripped
