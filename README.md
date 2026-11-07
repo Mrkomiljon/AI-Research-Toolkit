@@ -194,7 +194,7 @@ Ubuntu and Windows with Python 3.11 and 3.12. Acceptance criteria from the speci
 export_report, build_templates · `templates/` · `examples/agriculture-research/` · `tests/` · `docs/` (installation,
 user-guide-uz, architecture, security) · `.github/workflows/ci.yml`.
 
-Published on PyPI: https://pypi.org/project/ai-research-toolkit/ (v1.1.0, 2026-11-07).
+Published on PyPI: https://pypi.org/project/ai-research-toolkit/ (v1.1.1, 2026-11-07).
 
 ## Releasing to PyPI (maintainers)
 
