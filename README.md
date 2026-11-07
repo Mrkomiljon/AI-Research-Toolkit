@@ -194,6 +194,13 @@ Ubuntu and Windows with Python 3.11 and 3.12. Acceptance criteria from the speci
 export_report, build_templates · `templates/` · `examples/agriculture-research/` · `tests/` · `docs/` (installation,
 user-guide-uz, architecture, security) · `.github/workflows/ci.yml`.
 
+## Releasing to PyPI (maintainers)
+
+1. Create a PyPI API token (pypi.org → Account settings → API tokens) and store it as the GitHub secret `PYPI_API_TOKEN`.
+2. Bump `version` in `pyproject.toml`, commit, then tag and push: `git tag v1.1.0 && git push origin v1.1.0`.
+3. `.github/workflows/release.yml` runs lint + tests, checks the tag matches the version, builds, uploads to PyPI and
+   creates a GitHub release. Users can then `python -m pip install ai-research-toolkit`.
+
 ## License
 
 MIT (see `LICENSE`, including the dependency licence audit note).
