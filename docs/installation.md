@@ -23,7 +23,16 @@ One agent is enough; the skills behave the same in both. Semantic Scholar is opt
 limited; a free API key raises limits). Prices and limits change often: check claude.com/pricing and
 openai.com/chatgpt/pricing before advising users.
 
-## Route A — Skills CLI (after the repository is published on GitHub)
+## Route 0 — Fastest (no clone)
+
+```bash
+python -m pip install "git+https://github.com/Mrkomiljon/AI-Research-Toolkit.git"
+cd /path/to/your/research-folder
+npx skills add Mrkomiljon/AI-Research-Toolkit -a claude-code   # and/or -a codex
+rtk --help
+```
+
+## Route A — Skills CLI
 
 ```bash
 # interactive: pick skills and agents

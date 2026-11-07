@@ -139,6 +139,35 @@ def cmd_step(a):
     _out(state.summary(plan), a.json)
 
 
+def cmd_log(a):
+    """Human-readable view of workflow/runs.jsonl; --follow tails it live (watch a run from a second terminal)."""
+    import time
+
+    pm = _pm(a)
+    state = WorkflowState(pm.workspace)
+    path = state.runs_path
+    seen = 0
+
+    def render(ev):
+        step = f" {ev.step_id}" if ev.step_id else ""
+        skill = f" [{ev.skill}]" if ev.skill else ""
+        msg = f" — {ev.message}" if ev.message else ""
+        err = f" !! {ev.error}" if ev.error else ""
+        arts = f" -> {', '.join(ev.artifacts)}" if ev.artifacts else ""
+        return f"{ev.ts.strftime('%H:%M:%S')} {ev.event:<28}{step}{skill}{msg}{arts}{err}"
+
+    while True:
+        events = state.events(a.run)
+        for ev in events[seen:]:
+            print(render(ev), flush=True)
+        seen = len(events)
+        if not a.follow:
+            if seen == 0:
+                print(f"(no events yet in {path})")
+            return
+        time.sleep(a.interval)
+
+
 def cmd_resume(a):
     pm = _pm(a)
     state = WorkflowState(pm.workspace)
@@ -409,6 +438,13 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--needs-review", action="store_true", help="outputs need author review before counting as complete")
     s.add_argument("--tentative", action="store_true")
     s.set_defaults(fn=cmd_step)
+
+    s = sub.add_parser("log", help="show workflow events; --follow tails workflow/runs.jsonl live")
+    proj(s)
+    s.add_argument("--follow", "-f", action="store_true")
+    s.add_argument("--run", help="only this run id")
+    s.add_argument("--interval", type=float, default=1.0)
+    s.set_defaults(fn=cmd_log)
 
     s = sub.add_parser("resume", help="re-validate completed steps and re-queue interrupted ones")
     proj(s)

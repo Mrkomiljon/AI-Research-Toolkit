@@ -44,9 +44,21 @@ openai.com/chatgpt/pricing before advising users.
 ## 1-minute quickstart
 
 ```bash
+# engine (no clone needed)
+python -m pip install "git+https://github.com/Mrkomiljon/AI-Research-Toolkit.git"
+# skills into your research folder (pick the agent you use; both is fine)
+cd /path/to/your/research-folder
+npx skills add Mrkomiljon/AI-Research-Toolkit -a claude-code
+npx skills add Mrkomiljon/AI-Research-Toolkit -a codex
+rtk --help
+```
+
+Without Node.js, clone and use the Python installer instead:
+
+```bash
 git clone https://github.com/Mrkomiljon/AI-Research-Toolkit.git
 cd AI-Research-Toolkit
-python -m pip install -e .                                   # installs the engine and the `rtk` command
+python -m pip install -e .
 python scripts/install.py --agent all --scope project --project-dir /path/to/your/research-folder
 python scripts/doctor.py
 ```
@@ -82,6 +94,20 @@ repo carries the reliability rules.
 Skills are read from `<project>/.agents/skills/<skill>/SKILL.md` (or `~/.codex/skills`). `python scripts/install.py
 --agent codex --scope project --project-dir <project>`. `AGENTS.md` carries the same rules. No vendor-specific slash
 syntax is required by any skill (tested).
+
+## Watching what happens
+
+In an interactive session (`claude` or `codex` in a terminal or the VS Code extension) you see every step live: the
+plan preview, approval questions, each `rtk` call and the files it writes. The non-interactive forms (`claude -p`,
+`codex exec`) print only the final answer. Either way everything is written to disk, so a second terminal can follow
+the run:
+
+```bash
+rtk log -p workspace/<slug> --follow     # tails workflow/runs.jsonl: step_started, step_completed, blocked, ...
+rtk status -p workspace/<slug>           # stage table derived from artifacts
+```
+
+Outputs are ordinary files (`.md`, `.xlsx`, `.docx`, `.json`) under the workspace; open them in VS Code or Excel/Word.
 
 ## Sample prompts
 
@@ -150,7 +176,7 @@ Ubuntu and Windows with Python 3.11 and 3.12. Acceptance criteria from the speci
 | 6 | failed API step → partial artifacts + truthful `blocked` | pass |
 | 7 | interruption persists state; resume skips valid steps | pass |
 | 8 | injected instruction in a PDF does not change orchestration | pass |
-| 9 | Claude Code and Codex run the same skill workflow | installer/manifest part passes (`test_cross_agent.py`). Conversational run verified in **Claude Code** (2026-11-07: `claude -p` with `Use research-orchestrator. Initialize … then find 3 papers` created the workspace, ran the plan and reported only on-disk files). **Codex** conversational run still pending (account/model login issue on the test machine) |
+| 9 | Claude Code and Codex run the same skill workflow | installer/manifest part passes (`test_cross_agent.py`). Conversational run verified in **Claude Code** (2026-11-07: `claude -p` with `Use research-orchestrator. Initialize … then find 3 papers` created the workspace, ran the plan and reported only on-disk files; a second run `… 10 ta maqola top va bo'shliqlarni aniqla` completed the full search → analyzer → review → gap-finder chain with 26 artifacts, all labelled ABSTRACT_ONLY/METADATA_ONLY because no PDFs were supplied). **Codex** conversational run still pending (account/model login issue on the test machine) |
 | 10 | workflow summary matches artifacts on disk | pass |
 
 ## Known limitations

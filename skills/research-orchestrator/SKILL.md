@@ -105,6 +105,8 @@ access-level labels (`ABSTRACT_ONLY` sources cannot support method/result claims
 
 ### 7. Checkpoint
 
+Tell the user once that they can watch progress from another terminal with `rtk log -p <workspace> --follow`.
+
 Every `rtk run`/`rtk step` call appends to `workflow/runs.jsonl` and updates `workflow/plan.yaml`. After a verified
 success refresh status: `rtk status -p <workspace>`.
 

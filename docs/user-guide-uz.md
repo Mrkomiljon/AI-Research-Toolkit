@@ -8,12 +8,12 @@ taqriz simulyatsiyasini beradi va jarayonni hisoblaydi. Hech qachon maqola, DOI,
 ## 1. O'rnatish (qisqa)
 
 ```bash
-git clone https://github.com/Mrkomiljon/AI-Research-Toolkit.git
-cd AI-Research-Toolkit
-python -m pip install -e .
-python scripts/install.py --agent claude --scope project --project-dir C:\Users\siz\tadqiqot   # yoki --agent codex
-python scripts/doctor.py
+python -m pip install "git+https://github.com/Mrkomiljon/AI-Research-Toolkit.git"
+cd C:\Users\siz\tadqiqot
+npx skills add Mrkomiljon/AI-Research-Toolkit -a claude-code   # yoki -a codex
 ```
+
+Node.js bo'lmasa: repo'ni klon qilib `python scripts/install.py --agent all --scope project --project-dir C:\Users\siz\tadqiqot` ishlating.
 
 Agentni (Claude Code yoki Codex) `C:\Users\siz\tadqiqot` papkasida oching. Batafsil: `docs/installation.md`.
 
@@ -84,6 +84,18 @@ hech qachon "verified" hisoblanmaydi). Sintez yoki bo'shliq matnida identifikato
 `rtk status` yoki "Qayerdaman?" so'rovi bosqichlarni faqat diskdagi fayllar asosida hisoblaydi:
 `not_started` → `in_progress` → `awaiting_user_review` → `completed`, yoki `blocked` (sabab bilan). Foizlar
 taxmin qilinmaydi; "8 bosqichdan 3 tasi bajarildi" kabi sanoq beriladi.
+
+## 7a. Jarayonni kuzatish
+
+Agentni interaktiv ochsangiz (`claude` yoki `codex`, terminalda yoki VS Code kengaytmasida), har bir qadam jonli
+ko'rinadi: reja, tasdiq so'rovi, har bir `rtk` chaqiruvi va yozilgan fayllar. Qo'shimcha ravishda ikkinchi terminalda:
+
+```bash
+rtk log -p workspace/<slug> --follow     # workflow/runs.jsonl ni jonli kuzatadi
+rtk status -p workspace/<slug>
+```
+
+Natijalar oddiy fayllar (`.md`, `.xlsx`, `.docx`, `.json`) — VS Code, Excel yoki Word'da ochiladi.
 
 ## 8. Uzilib qolsa
 

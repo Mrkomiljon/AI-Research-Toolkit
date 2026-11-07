@@ -208,6 +208,9 @@ def test_cli_end_to_end_offline(tmp_path, monkeypatch, capsys):
     rtk(["report", "-p", ws])
     rep = json.loads(capsys.readouterr().out)
     assert "progress/project-status.json" in rep["files"]
+    rtk(["log", "-p", ws])
+    log_out = capsys.readouterr().out
+    assert "plan_created" in log_out and "step_completed" in log_out and "[research-progress]" in log_out
     make_pdf(tmp_path / "cli-demo" / "papers" / "PDFs" / "p.pdf", FULL_TEXT_PAGES)
     rtk(["sources", "add", "-p", ws, "--title", "Maize yield prediction with random forests", "--year", "2021", "--doi", "10.1000/test.0", "--pdf", "papers/PDFs/p.pdf"])
     sid = json.loads(capsys.readouterr().out)["source_id"]
