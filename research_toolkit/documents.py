@@ -37,7 +37,8 @@ class ParsedDocument:
         return "\n".join(p.text for p in self.pages)
 
     def is_probably_full_text(self) -> bool:
-        return len(self.pages) >= 2 and self.char_count > 2500
+        has_body = {"methods", "results"} <= set(self.sections) or {"materials and methods", "results"} <= set(self.sections)
+        return len(self.pages) >= 2 and (self.char_count > 2500 or (has_body and self.char_count > 300))
 
     def as_untrusted_block(self, max_chars: int | None = None) -> str:
         body = self.full_text if max_chars is None else self.full_text[:max_chars]

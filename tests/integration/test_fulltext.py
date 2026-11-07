@@ -43,7 +43,7 @@ def make_transport(pdf: bytes, *, openalex_oa=True, epmc_oa=True, unpaywall=True
             return httpx.Response(200, json={"resultList": {"result": res}})
         if "/fullTextXML" in url:
             return httpx.Response(200, text='<article><front><article-meta><abstract><p>Abstract text here.</p></abstract></article-meta></front>'
-                                           '<body><sec><title>Methods</title><p>We trained a random forest on 2,400 field observations.</p></sec>'
+                                           '<body><sec><title>Methods</title><p>We trained a random forest on 2,400 field observations. Further methodological detail sentence. Further methodological detail sentence. Further methodological detail sentence. Further methodological detail sentence. Further methodological detail sentence. Further methodological detail sentence. Further methodological detail sentence. Further methodological detail sentence. Further methodological detail sentence. Further methodological detail sentence. Further methodological detail sentence. Further methodological detail sentence. </p></sec>'
                                            '<sec><title>Results</title><p>The model reached an RMSE of 0.41 t/ha.</p></sec></body></article>')
         if "api.unpaywall.org" in url:
             if not unpaywall:
