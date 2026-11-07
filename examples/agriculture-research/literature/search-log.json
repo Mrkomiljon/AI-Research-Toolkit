@@ -1,0 +1,38 @@
+{
+  "query_id": "q-20261107T112259Z",
+  "topic": "machine learning crop yield prediction remote sensing",
+  "year_from": 2021,
+  "year_to": 2025,
+  "target_count": 8,
+  "providers": [
+    {
+      "name": "openalex",
+      "status": "ok",
+      "returned": 10,
+      "total_available": 36302
+    },
+    {
+      "name": "crossref",
+      "status": "ok",
+      "returned": 10,
+      "total_available": 2058370
+    }
+  ],
+  "started_at": "2026-11-07T11:22:59.194360+00:00",
+  "new_sources": 16,
+  "merged_duplicates": 4,
+  "errors": [],
+  "finished_at": "2026-11-07T11:23:01.225797+00:00",
+  "selected": 8,
+  "coverage": {
+    "requested": 8,
+    "delivered": 8,
+    "shortfall": 0,
+    "access_levels": {
+      "FULL_TEXT": 0,
+      "ABSTRACT_ONLY": 8,
+      "METADATA_ONLY": 0
+    },
+    "without_doi": 0
+  }
+}

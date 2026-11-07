@@ -1,0 +1,182 @@
+{
+  "schema_version": "1.1",
+  "project": "agriculture-research",
+  "updated_at": "2026-11-07T11:23:23.274796Z",
+  "derived_from": "artifacts on disk + workflow/runs.jsonl (no LLM-estimated percentages)",
+  "sources_total": 16,
+  "sources_verified": 16,
+  "sources_full_text": 0,
+  "evidence_total": 5,
+  "stages": {
+    "literature-search": {
+      "skill": "literature-search",
+      "status": "completed",
+      "artifacts": [
+        "literature/papers.csv",
+        "literature/papers.xlsx",
+        "literature/search-log.json",
+        "literature/search-strategy.md",
+        "sources/references.bib"
+      ],
+      "missing_required": [],
+      "last_run_id": "run-20261107-112257-b09f",
+      "last_updated": "2026-11-07T11:23:01.301440Z",
+      "blockers": []
+    },
+    "paper-analyzer": {
+      "skill": "paper-analyzer",
+      "status": "awaiting_user_review",
+      "artifacts": [
+        "analysis/src-7adcd4c385fd/paper-analysis.json",
+        "analysis/src-7adcd4c385fd/paper-analysis.md"
+      ],
+      "missing_required": [],
+      "last_run_id": null,
+      "last_updated": null,
+      "blockers": []
+    },
+    "literature-review": {
+      "skill": "literature-review",
+      "status": "in_progress",
+      "artifacts": [
+        "literature/literature-matrix.xlsx",
+        "literature/review-evidence.json"
+      ],
+      "missing_required": [
+        "literature-synthesis.md"
+      ],
+      "last_run_id": null,
+      "last_updated": null,
+      "blockers": []
+    },
+    "research-gap-finder": {
+      "skill": "research-gap-finder",
+      "status": "in_progress",
+      "artifacts": [
+        "analysis/gap-seed.json"
+      ],
+      "missing_required": [
+        "research-gaps.md",
+        "candidate-hypotheses.md",
+        "feasibility-report.md"
+      ],
+      "last_run_id": null,
+      "last_updated": null,
+      "blockers": []
+    },
+    "manuscript-builder": {
+      "skill": "manuscript-builder",
+      "status": "not_started",
+      "artifacts": [],
+      "missing_required": [
+        "manuscript-outline.md",
+        "manuscript-draft.docx",
+        "missing-information.md"
+      ],
+      "last_run_id": null,
+      "last_updated": null,
+      "blockers": []
+    },
+    "citation-verifier": {
+      "skill": "citation-verifier",
+      "status": "not_started",
+      "artifacts": [],
+      "missing_required": [
+        "citation-audit.xlsx",
+        "citation-audit.md",
+        "verified-references.bib"
+      ],
+      "last_run_id": null,
+      "last_updated": null,
+      "blockers": []
+    },
+    "academic-integrity": {
+      "skill": "academic-integrity",
+      "status": "not_started",
+      "artifacts": [],
+      "missing_required": [
+        "integrity-audit.md",
+        "ai-disclosure-draft.docx",
+        "submission-checklist.md"
+      ],
+      "last_run_id": null,
+      "last_updated": null,
+      "blockers": []
+    },
+    "peer-reviewer": {
+      "skill": "peer-reviewer",
+      "status": "not_started",
+      "artifacts": [],
+      "missing_required": [
+        "peer-review-report.md",
+        "revision-plan.xlsx",
+        "response-to-reviewers-draft.docx"
+      ],
+      "last_run_id": null,
+      "last_updated": null,
+      "blockers": []
+    }
+  },
+  "stages_completed": 1,
+  "stages_total": 8,
+  "blockers": [],
+  "next_actions": [
+    "Review and approve paper-analyzer outputs: analysis/src-7adcd4c385fd/paper-analysis.json, analysis/src-7adcd4c385fd/paper-analysis.md"
+  ],
+  "milestones": [
+    {
+      "milestone": "literature-search completed",
+      "reached": true,
+      "evidence": [
+        "literature/papers.csv",
+        "literature/papers.xlsx",
+        "literature/search-log.json",
+        "literature/search-strategy.md",
+        "sources/references.bib"
+      ]
+    },
+    {
+      "milestone": "paper-analyzer completed",
+      "reached": false,
+      "evidence": [
+        "analysis/src-7adcd4c385fd/paper-analysis.json",
+        "analysis/src-7adcd4c385fd/paper-analysis.md"
+      ]
+    },
+    {
+      "milestone": "literature-review completed",
+      "reached": false,
+      "evidence": [
+        "literature/literature-matrix.xlsx",
+        "literature/review-evidence.json"
+      ]
+    },
+    {
+      "milestone": "research-gap-finder completed",
+      "reached": false,
+      "evidence": [
+        "analysis/gap-seed.json"
+      ]
+    },
+    {
+      "milestone": "manuscript-builder completed",
+      "reached": false,
+      "evidence": []
+    },
+    {
+      "milestone": "citation-verifier completed",
+      "reached": false,
+      "evidence": []
+    },
+    {
+      "milestone": "academic-integrity completed",
+      "reached": false,
+      "evidence": []
+    },
+    {
+      "milestone": "peer-reviewer completed",
+      "reached": false,
+      "evidence": []
+    }
+  ]
+}

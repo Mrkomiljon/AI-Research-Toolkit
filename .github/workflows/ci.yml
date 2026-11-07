@@ -1,0 +1,60 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / py${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.12"]
+    env:
+      RTK_ALLOW_EXTERNAL_APIS: "0"   # CI never calls live scholarly APIs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - name: Lint
+        run: ruff check .
+      - name: Validate skill manifests
+        run: rtk validate-skills --skills-dir skills
+      - name: Unit + integration + acceptance tests
+        run: pytest -q
+      - name: Installer smoke (project scope, copy mode)
+        run: |
+          python scripts/install.py --agent all --scope project --copy
+          python scripts/doctor.py || true
+      - name: Sample workflow dry run (offline)
+        run: |
+          rtk init --workspace ./.ci-ws --slug ci-demo --topic "demo topic" --no-external-apis --ack-cloud
+          rtk plan -p ./.ci-ws/ci-demo "Where am I in my research?"
+          rtk --json run -p ./.ci-ws/ci-demo
+          rtk report -p ./.ci-ws/ci-demo
+      - name: Build package
+        run: |
+          python -m pip install build
+          python -m build
+
+  skills-ref:
+    name: skills-ref validate (optional)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: List skills as the skills CLI sees them
+        run: npx -y skills add . --list || echo "skills CLI listing unavailable in CI"

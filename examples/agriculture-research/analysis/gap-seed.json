@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.1",
+  "generated_at": "2026-11-07T11:23:22.629722+00:00",
+  "papers": [
+    {
+      "source_id": "src-7adcd4c385fd",
+      "title": "Integration of machine learning and remote sensing in crop yield prediction: A review",
+      "access_level": "ABSTRACT_ONLY",
+      "limitations": "Challenges are mentioned but not specified in the abstract; quantitative evidence of accuracy is absent at abstract level.",
+      "methods": "Narrative literature review (no primary experiment). Specific ML algorithms and RS products are not enumerated in the abstract; full text needed.",
+      "outcomes": "Authors report that ML + RS integration shows considerable promise for agricultural decision-making, resource-use optimization and food security.",
+      "sample": "Not determinable from the abstract (number of reviewed studies not stated).",
+      "evidence_ids": [
+        "ev-7de5ec8357",
+        "ev-2016622814",
+        "ev-c2f24bed2c",
+        "ev-961afca983",
+        "ev-274de31a27"
+      ]
+    }
+  ],
+  "rule": "A candidate gap is NOT proven novelty. Each gap must cite >=2 source_ids or state it rests on one."
+}

@@ -1,0 +1,46 @@
+workflow_version: 1
+schema_version: '1.1'
+run_id: example-001
+project: crop-yield-study
+goal: Build a grounded literature review and shortlist research gaps
+request_text: Find 20 papers on ML crop yield prediction since 2021 and find research gaps
+status: planned
+steps:
+  - id: s1
+    skill: literature-search
+    inputs: {topic: "ML crop yield prediction", year_from: 2021, year_to: null, target_count: 20}
+    depends_on: []
+    produces: [search-strategy.md, papers.xlsx, papers.csv, references.bib, search-log.json]
+    status: planned
+    api_cost: low
+    approval_required: false
+    executor: engine
+  - id: s2
+    skill: paper-analyzer
+    depends_on: [s1]
+    inputs: {source_ids: "selected-available-full-text-only", question: "Which features and models drive yield prediction accuracy?"}
+    produces: [paper-analysis.md, paper-analysis.json]
+    status: planned
+    api_cost: none
+    approval_required: false
+    executor: host-skill
+  - id: s3
+    skill: literature-review
+    depends_on: [s2]
+    inputs: {source_ids: all-analyzed}
+    produces: [literature-matrix.xlsx, literature-synthesis.md, review-evidence.json]
+    status: planned
+    api_cost: none
+    approval_required: false
+    executor: host-skill
+  - id: s4
+    skill: research-gap-finder
+    depends_on: [s3]
+    inputs: {scope: "ML crop yield prediction", constraints: null}
+    produces: [research-gaps.md, candidate-hypotheses.md, feasibility-report.md]
+    status: planned
+    api_cost: none
+    approval_required: false
+    executor: host-skill
+approval_required: false
+warnings: []

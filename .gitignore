@@ -1,0 +1,30 @@
+# secrets
+.env
+*.key
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+# research workspaces, private PDFs and generated artifacts
+workspace/
+workspaces/
+**/papers/PDFs/*
+!**/papers/PDFs/.gitkeep
+**/exports/*
+!**/exports/.gitkeep
+*.pdf
+!tests/fixtures/*.pdf
+# installer-generated agent directories (canonical source is skills/)
+.claude/skills/
+.agents/skills/
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
