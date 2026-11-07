@@ -177,7 +177,7 @@ rtk validate-skills --skills-dir skills
 pytest -q
 ```
 
- tests (unit, integration, acceptance) pass offline on Windows 11 / Python 3.11.9 (2026-11-07); CI runs them on
+81 tests (unit, integration, acceptance) pass offline on Windows 11 / Python 3.11.9 (2026-11-07); CI runs them on
 Ubuntu and Windows with Python 3.11 and 3.12. Acceptance criteria from the specification:
 
 | # | Criterion | Status |
