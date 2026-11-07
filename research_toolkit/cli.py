@@ -371,14 +371,15 @@ def cmd_writing(a):
 def cmd_journal(a):
     from .journal import GUIDELINES, build_checklist, cover_letter
 
+    if a.action == "guidelines":  # needs no workspace
+        _out({k: {"name": v["name"], "items": len(v["items"])} for k, v in GUIDELINES.items()}, True)
+        return
     pm = _pm(a)
     try:
         if a.action == "checklist":
             _out(build_checklist(pm, a.manuscript, a.guideline, guidelines_file=a.guidelines_file, word_limit=a.word_limit, abstract_limit=a.abstract_limit), True)
         elif a.action == "cover-letter":
             _out(cover_letter(pm, a.manuscript, a.journal), True)
-        elif a.action == "guidelines":
-            _out({k: {"name": v["name"], "items": len(v["items"])} for k, v in GUIDELINES.items()}, True)
     except ValueError as exc:
         _out({"error": str(exc)}, True)
         sys.exit(4)
