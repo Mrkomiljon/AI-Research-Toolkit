@@ -1,5 +1,6 @@
 """PDF parsing with page locators. Extracted text is DATA: it is scanned for embedded instructions and
-wrapped in explicit boundaries before an LLM sees it."""
+wrapped in explicit boundaries before an LLM sees it. Pages without a text layer (scans) are detected and,
+when an OCR backend is installed, read through `research_toolkit.ocr`; OCR'd pages are always labelled."""
 from __future__ import annotations
 
 import re
@@ -31,6 +32,15 @@ class ParsedDocument:
     sections: dict[str, str] = field(default_factory=dict)
     injection_findings: list[InjectionFinding] = field(default_factory=list)
     char_count: int = 0
+    scanned_pages: list[int] = field(default_factory=list)  # pages with images but no usable text layer
+    ocr_pages: list[int] = field(default_factory=list)  # pages whose text came from OCR
+    ocr_backend: str | None = None
+    ocr_status: str = "not_needed"  # not_needed | applied | partial | skipped | unavailable | failed
+    ocr_message: str | None = None
+
+    def ocr_info(self) -> dict:
+        return {"status": self.ocr_status, "backend": self.ocr_backend, "scanned_pages": self.scanned_pages,
+                "ocr_pages": self.ocr_pages, "message": self.ocr_message}
 
     @property
     def full_text(self) -> str:
@@ -51,16 +61,49 @@ class ParsedDocument:
         return None
 
 
-def extract_pdf_text(path: Path) -> ParsedDocument:
+SCANNED_PAGE_MAX_CHARS = 40  # a page with an image and fewer characters than this has no usable text layer
+
+
+def extract_pdf_text(path: Path, *, ocr: str = "off", ocr_backend: str | None = None) -> ParsedDocument:
+    """ocr: "off" (detect scanned pages only), "auto" (OCR pages without a text layer), "force" (OCR every page)."""
     import pymupdf
 
+    if ocr not in ("off", "auto", "force"):
+        raise ValueError(f"ocr must be off|auto|force, not {ocr!r}")
     path = Path(path)
     pages: list[PageText] = []
+    scanned: list[int] = []
     with pymupdf.open(path) as doc:
         for i, page in enumerate(doc, start=1):
             txt = page.get_text("text") or ""
             pages.append(PageText(page=i, text=txt))
-    parsed = ParsedDocument(path=str(path), pages=pages)
+            if len(txt.strip()) < SCANNED_PAGE_MAX_CHARS and page.get_images(full=False):
+                scanned.append(i)
+    parsed = ParsedDocument(path=str(path), pages=pages, scanned_pages=scanned)
+    targets = [p.page for p in pages] if ocr == "force" else scanned
+    if targets and ocr == "off":
+        if scanned:
+            parsed.ocr_status = "skipped"
+            parsed.ocr_message = f"{len(scanned)} page(s) have no text layer; OCR was not requested"
+    elif targets:
+        from .ocr import OcrUnavailable, ocr_pages
+
+        try:
+            texts, backend = ocr_pages(path, targets, ocr_backend)
+        except OcrUnavailable as exc:
+            parsed.ocr_status, parsed.ocr_message = "unavailable", str(exc)
+        except Exception as exc:  # noqa: BLE001 - an OCR engine failure must not lose the text layer we do have
+            parsed.ocr_status, parsed.ocr_message = "failed", f"{type(exc).__name__}: {exc}"
+        else:
+            for p in pages:
+                if p.page in texts:
+                    p.text = texts[p.page]
+                    parsed.ocr_pages.append(p.page)
+            parsed.ocr_backend = backend
+            missing = [n for n in targets if n not in texts]
+            parsed.ocr_status = "applied" if not missing else "partial"
+            if missing:
+                parsed.ocr_message = f"OCR returned no text for page(s) {missing}"
     parsed.char_count = sum(len(p.text) for p in pages)
     parsed.sections = split_sections(parsed.full_text)
     parsed.injection_findings = []
@@ -121,11 +164,11 @@ def extract_plain_text(path: Path, chunk_chars: int = 4000) -> ParsedDocument:
     return parsed
 
 
-def extract_document(path: Path) -> ParsedDocument:
-    """Dispatch on file type: .pdf (PyMuPDF), .xml (JATS from Europe PMC), anything else as plain text."""
+def extract_document(path: Path, *, ocr: str = "off", ocr_backend: str | None = None) -> ParsedDocument:
+    """Dispatch on file type: .pdf (PyMuPDF, optional OCR), .xml (JATS from Europe PMC), anything else as plain text."""
     suffix = Path(path).suffix.lower()
     if suffix == ".pdf":
-        return extract_pdf_text(path)
+        return extract_pdf_text(path, ocr=ocr, ocr_backend=ocr_backend)
     if suffix in (".xml", ".nxml"):
         return extract_jats_xml(path)
     return extract_plain_text(path)

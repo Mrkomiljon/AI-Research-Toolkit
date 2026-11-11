@@ -65,10 +65,23 @@ CONTRACTS: dict[str, SkillContract] = {
         "journal-standards", ("reporting-checklist.xlsx", "journal-compliance.md", "cover-letter-draft.docx"), "reviews",
         "host-skill", ApiCostCategory.NONE, True, "Readiness check, not a guarantee of acceptance or compliance", ("manuscript_path", "guideline", "journal_guidelines"),
     ),
+    "claim-verifier": SkillContract(
+        "claim-verifier", ("claims.json", "claim-verification.md", "claim-verification.xlsx"), "reviews",
+        "host-skill", ApiCostCategory.NONE, True, "A verdict needs a verbatim quote from the cited source; agent verdict is not human verification",
+        ("manuscript_path", "bib_path"),
+    ),
+    "gap-validator": SkillContract(
+        "gap-validator", ("gap-counterevidence.json", "gap-validation.md", "gap-validation.xlsx"), "analysis",
+        "host-skill", ApiCostCategory.LOW, True, "'Open' means no counterevidence found by this search, never proven novelty", ("gaps_file", "queries"),
+    ),
+    "research-concept-builder": SkillContract(
+        "research-concept-builder", ("gap-canvas.md", "concept-paper.md", "concept-paper.docx"), "manuscript",
+        "host-skill", ApiCostCategory.NONE, True, "Design, data and timeline come from the author; missing parts stay placeholders", ("gap_id", "author_inputs"),
+    ),
 }
 
 PIPELINE_ORDER = [
-    "literature-search", "paper-analyzer", "literature-review", "research-gap-finder",
-    "manuscript-builder", "academic-writing", "citation-verifier", "academic-integrity", "journal-standards",
+    "literature-search", "paper-analyzer", "literature-review", "research-gap-finder", "gap-validator", "research-concept-builder",
+    "manuscript-builder", "academic-writing", "citation-verifier", "claim-verifier", "academic-integrity", "journal-standards",
     "peer-reviewer", "research-progress",
 ]

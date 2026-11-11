@@ -1,6 +1,6 @@
 # CLAUDE.md — project guidance for Claude Code
 
-This is the **AI Research Toolkit** (v1.2): twelve Agent Skills (`skills/`) + deterministic Python engine
+This is the **AI Research Toolkit** (v1.4): fifteen Agent Skills (`skills/`) + deterministic Python engine
 (`research_toolkit/`, CLI `rtk`). The rules below apply when you work on this repo and when you use the installed
 skills inside a research workspace. `AGENTS.md` holds the identical rules for Codex.
 
@@ -12,6 +12,8 @@ skills inside a research workspace. `AGENTS.md` holds the identical rules for Co
 - Explicit user approval before: scientific interpretation counts as done, novelty claims, manuscript text, reviewer
   responses, external transmission of workspace files, exceeding `budget.max_papers_per_search`, overwriting user-edited files.
 - No journal submission, institutional login, e-mail, public upload, or paid APIs without consent.
+- Claim verdicts need a verbatim quote from the cited source; gap verdicts need a logged search; both stay pending until the author reviews them.
+- OCR text is machine-read: name the OCR'd pages and never describe pages that were not read.
 - Progress = counts of validated artifacts (`rtk status`); never estimated percentages.
 - Checkpoint host-skill work with `rtk step start` / `rtk step complete`; keep partial results on failure; `rtk resume` after interruption.
 - No plagiarism-free certificates, no AI-detector evasion, no acceptance/compliance guarantees.
@@ -25,7 +27,8 @@ Skills live in `.claude/skills/<name>/` after `python scripts/install.py --agent
 (`python -m pip install ai-research-toolkit` or `python -m pip install -e .`); if `rtk` is missing, say so.
 
 Typical loop: `rtk status` → `rtk plan "<request>"` → show plan → approvals → `rtk --json run` → specialist
-SKILL.md for host steps → validators (`rtk analyze finalize`, `rtk review validate-links`, `rtk verify-citations`) →
+SKILL.md for host steps → validators (`rtk analyze finalize`, `rtk review validate-links`, `rtk verify-citations`, `rtk claims finalize`,
+`rtk gaps finalize`, `rtk concept build`) →
 `rtk step complete --needs-review` → `rtk report`.
 
 ## Development

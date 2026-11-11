@@ -1,4 +1,4 @@
-"""`rtk` command line: the stable interface the ten SKILL.md files call. Also `python -m research_toolkit`."""
+"""`rtk` command line: the stable interface the SKILL.md files call. Also `python -m research_toolkit`."""
 from __future__ import annotations
 
 import argparse
@@ -288,7 +288,7 @@ def cmd_analyze(a):
     pm = _pm(a)
     if a.action == "prepare":
         try:
-            _out(pipelines.prepare_paper_analysis(pm, a.source_id, a.pdf, fetch=a.fetch), True)
+            _out(pipelines.prepare_paper_analysis(pm, a.source_id, a.pdf, fetch=a.fetch, ocr=a.ocr, ocr_backend=a.ocr_backend), True)
         except (pipelines.StepBlocked, ApprovalRequired) as exc:
             _out({"error": str(exc)}, True)
             sys.exit(4)
@@ -299,6 +299,79 @@ def cmd_analyze(a):
         except pipelines.StepBlocked as exc:
             _out({"error": str(exc)}, True)
             sys.exit(4)
+
+
+def cmd_ocr(a):
+    from . import ocr
+
+    _out(ocr.status(), True)
+
+
+def cmd_claims(a):
+    from . import verification
+
+    pm = _pm(a)
+    try:
+        if a.action == "extract":
+            if not a.manuscript:
+                _out({"error": "--manuscript is required for extract"}, True)
+                sys.exit(2)
+            _out(verification.extract_claims(pm, a.manuscript, a.bib), True)
+            return
+        res = verification.finalize_claims(pm, read_json(pm.resolve(a.claims_json)))
+    except pipelines.StepBlocked as exc:
+        _out({"error": str(exc)}, True)
+        sys.exit(4)
+    except FileNotFoundError as exc:
+        _out({"error": str(exc)}, True)
+        sys.exit(2)
+    _out(res, True)
+    sys.exit(0 if res["passed"] else 5)
+
+
+def cmd_gaps(a):
+    from . import verification
+
+    pm = _pm(a)
+    try:
+        if a.action == "init":
+            _out(verification.init_gap_validation(pm, a.file, force=a.force), True)
+        elif a.action == "search":
+            cfg = pm.load_config()
+            if not cfg.privacy.allow_external_apis and not a.authorized:
+                _out({"error": "privacy.allow_external_apis is false; re-run with --authorized after user approval"}, True)
+                sys.exit(3)
+            _out(verification.search_gap_counterevidence(pm, _providers(a.providers), input_path=a.input, per_query=a.per_query,
+                                                         year_from=a.year_from), True)
+        else:
+            res = verification.finalize_gap_validation(pm, input_path=a.input)
+            _out(res, True)
+            sys.exit(0 if res["passed"] else 5)
+    except ApprovalRequired as exc:
+        _out({"error": str(exc)}, True)
+        sys.exit(3)
+    except pipelines.StepBlocked as exc:
+        _out({"status": "blocked", "error": str(exc), "partial_artifacts": exc.partial_artifacts}, True)
+        sys.exit(4)
+
+
+def cmd_concept(a):
+    from . import concept
+
+    pm = _pm(a)
+    try:
+        if a.action == "init":
+            _out(concept.init_canvas(pm, force=a.force), True)
+            return
+        res = concept.build_concept(pm, a.canvas, force=a.force)
+    except ApprovalRequired as exc:
+        _out({"error": str(exc)}, True)
+        sys.exit(3)
+    except pipelines.StepBlocked as exc:
+        _out({"error": str(exc)}, True)
+        sys.exit(4)
+    _out(res, True)
+    sys.exit(0 if res["ok"] else 5)
 
 
 def cmd_evidence(a):
@@ -556,7 +629,41 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--pdf")
     s.add_argument("--fetch", action="store_true", help="try to download an open-access PDF first")
     s.add_argument("--analysis-json")
+    s.add_argument("--ocr", choices=["auto", "off", "force"], default="auto",
+                   help="scanned pages: auto = OCR pages without a text layer if a backend is installed (default); force = OCR every page")
+    s.add_argument("--ocr-backend", help="docling | tesseract (default: first installed, or RTK_OCR_BACKEND)")
     s.set_defaults(fn=cmd_analyze)
+
+    s = sub.add_parser("ocr", help="OCR backends for scanned PDFs: status")
+    s.add_argument("action", choices=["status"])
+    s.set_defaults(fn=cmd_ocr)
+
+    s = sub.add_parser("claims", help="claim-verifier: extract (cited sentences -> reviews/claims.json) | finalize (validate verdicts)")
+    proj(s)
+    s.add_argument("action", choices=["extract", "finalize"])
+    s.add_argument("--manuscript", help="workspace-relative md/docx/txt (extract)")
+    s.add_argument("--bib", help="workspace-relative .bib used to resolve citation keys (extract)")
+    s.add_argument("--claims-json", default="reviews/claims.json", help="workspace-relative claims file with verdicts (finalize)")
+    s.set_defaults(fn=cmd_claims)
+
+    s = sub.add_parser("gaps", help="gap-validator: init (worksheet from research-gaps.md) | search (targeted counterevidence) | finalize")
+    proj(s)
+    s.add_argument("action", choices=["init", "search", "finalize"])
+    s.add_argument("--file", default="analysis/research-gaps.md", help="gap report to read (init)")
+    s.add_argument("--input", default="analysis/gap-validation.input.json", help="worksheet with queries / verdicts")
+    s.add_argument("--per-query", type=int, default=10)
+    s.add_argument("--year-from", type=int)
+    s.add_argument("--providers", help="comma list: openalex,crossref,semantic_scholar")
+    s.add_argument("--authorized", action="store_true", help="user approved external search although the project disables external APIs")
+    s.add_argument("--force", action="store_true")
+    s.set_defaults(fn=cmd_gaps)
+
+    s = sub.add_parser("concept", help="research-concept-builder: init (gap-canvas.json) | build (canvas + concept paper)")
+    proj(s)
+    s.add_argument("action", choices=["init", "build"])
+    s.add_argument("--canvas", default="manuscript/gap-canvas.json")
+    s.add_argument("--force", action="store_true")
+    s.set_defaults(fn=cmd_concept)
 
     s = sub.add_parser("evidence", help="evidence store: list|add")
     proj(s)
@@ -630,7 +737,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--authorized", action="store_true")
     s.set_defaults(fn=cmd_privacy_check)
 
-    s = sub.add_parser("validate-skills", help="validate the ten SKILL.md manifests")
+    s = sub.add_parser("validate-skills", help="validate the SKILL.md manifests")
     s.add_argument("--skills-dir", default="skills")
     s.set_defaults(fn=cmd_validate_skills)
     return p

@@ -179,8 +179,11 @@ def rank_sources(sources: list[SourceRecord]) -> list[SourceRecord]:
 ANALYSIS_FIELDS = ["objective", "methods", "sample", "outcomes", "limitations"]
 
 
-def prepare_paper_analysis(pm: ProjectManager, source_id: str, pdf_path: str | None = None, *, fetch: bool = False, fetcher=None) -> dict[str, Any]:
+def prepare_paper_analysis(pm: ProjectManager, source_id: str, pdf_path: str | None = None, *, fetch: bool = False, fetcher=None,
+                           ocr: str = "auto", ocr_backend: str | None = None) -> dict[str, Any]:
     """Extract text (if a PDF exists), label access level, scan for injected instructions, write a skeleton.
+
+    Scanned pages (no text layer) are OCR'd when a backend is installed (ocr="auto"); otherwise they are reported.
 
     With fetch=True an open-access PDF is looked up first (arXiv, Europe PMC, Unpaywall, OpenAlex OA locations)."""
     registry = SourceRegistry(pm.workspace)
@@ -207,9 +210,14 @@ def prepare_paper_analysis(pm: ProjectManager, source_id: str, pdf_path: str | N
     if pdf_rel:
         pdf_abs = pm.resolve(pdf_rel)
         if pdf_abs.exists():
-            parsed = extract_document(pdf_abs)
+            parsed = extract_document(pdf_abs, ocr=ocr, ocr_backend=ocr_backend)
             src.pdf_path = pdf_rel.replace("\\", "/")
-            src.access_level = AccessLevel.FULL_TEXT if parsed.is_probably_full_text() else AccessLevel.ABSTRACT_ONLY
+            if parsed.is_probably_full_text():
+                src.access_level = AccessLevel.FULL_TEXT
+            elif src.abstract or parsed.char_count >= 200:
+                src.access_level = AccessLevel.ABSTRACT_ONLY
+            else:  # e.g. a scan that could not be read and no abstract on file: nothing but metadata is known
+                src.access_level = AccessLevel.METADATA_ONLY
             registry.upsert(src)
             registry.save()
     if parsed is None:
@@ -221,11 +229,21 @@ def prepare_paper_analysis(pm: ProjectManager, source_id: str, pdf_path: str | N
             registry.save()
     else:
         access = src.access_level
+    ocr_info = parsed.ocr_info() if parsed else {"status": "not_needed", "backend": None, "scanned_pages": [], "ocr_pages": [], "message": None}
+    ocr_warnings: list[str] = []
+    if ocr_info["ocr_pages"]:
+        ocr_warnings.append(f"OCR ({ocr_info['backend']}) text on page(s) {ocr_info['ocr_pages']}: machine-read, may contain recognition errors; "
+                            "check every quote from these pages against the scan")
+    unread = [n for n in ocr_info["scanned_pages"] if n not in ocr_info["ocr_pages"]]
+    if unread:
+        ocr_warnings.append(f"page(s) {unread} are scans with no text layer and were NOT read ({ocr_info['status']}"
+                            + (f": {ocr_info['message']}" if ocr_info["message"] else "") + "); nothing may be claimed about their content")
     extracted = {
         "source_id": source_id,
         "access_level": access.value,
         "pdf_path": src.pdf_path,
-        "pages": [{"page": p.page, "chars": len(p.text), "text": p.text} for p in parsed.pages] if parsed else [],
+        "pages": [{"page": p.page, "chars": len(p.text), "ocr": p.page in parsed.ocr_pages, "text": p.text} for p in parsed.pages] if parsed else [],
+        "ocr": ocr_info,
         "sections_detected": list(parsed.sections) if parsed else [],
         "sections": parsed.sections if parsed else {},
         "fetch": fetch_info,
@@ -244,13 +262,13 @@ def prepare_paper_analysis(pm: ProjectManager, source_id: str, pdf_path: str | N
         "question": None,
         "fields": {f: {"summary": None, "locator": None, "excerpt": None} for f in ANALYSIS_FIELDS},
         "evidence_ids": [],
-        "warnings": [] if access == AccessLevel.FULL_TEXT else [f"{access.value}: full-text claims are not permitted"],
+        "warnings": ([] if access == AccessLevel.FULL_TEXT else [f"{access.value}: full-text claims are not permitted"]) + ocr_warnings,
         "status": "skeleton",
     }
     skel_path = out_dir / "paper-analysis.skeleton.json"
     write_json(skel_path, skeleton)
     return {"source_id": source_id, "access_level": access.value, "pages": len(parsed.pages) if parsed else 0,
-            "sections_detected": extracted["sections_detected"], "fetch": fetch_info,
+            "sections_detected": extracted["sections_detected"], "fetch": fetch_info, "ocr": ocr_info, "warnings": skeleton["warnings"],
             "injection_findings": extracted["injection_findings"], "skeleton": str(skel_path),
             "extracted_text": str(out_dir / "extracted-text.json")}
 

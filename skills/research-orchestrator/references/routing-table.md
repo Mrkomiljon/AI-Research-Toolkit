@@ -9,15 +9,18 @@ outputs, skip unneeded tasks, never fetch or analyze more papers than the user a
 | "Find papers about…" / "… haqida maqolalar top" / "Найди статьи о…" | `literature-search` | engine |
 | "Analyze this PDF…" / "Bu PDF ni tahlil qil" / "Проанализируй этот PDF" | `paper-analyzer` | host |
 | "Compare these papers…" / "Bu maqolalarni taqqosla" / "Сравни эти статьи" | `paper-analyzer` (missing only) → `literature-review` | host |
-| "Find research gaps…" / "Tadqiqot bo'shliqlarini top" / "Найди пробелы" | `literature-search` (if none) → `paper-analyzer` → `literature-review` → `research-gap-finder` | engine → host |
-| "Prepare my article…" / "Maqolamni tayyorla" / "Подготовь мою статью" | `manuscript-builder` → `academic-writing` → `citation-verifier` → `academic-integrity` → `journal-standards` → `peer-reviewer` | host → host → engine → host → host → host |
-| "Audit this manuscript…" / "Qo'lyozmani tekshir" / "Проверь рукопись" | `citation-verifier` → `academic-integrity` → `journal-standards` → `peer-reviewer` | engine → host → host → host |
+| "Find research gaps…" / "Tadqiqot bo'shliqlarini top" / "Найди пробелы" | `literature-search` (if none) → `paper-analyzer` → `literature-review` → `research-gap-finder` (then offer `gap-validator`; it runs new searches, so it is not added automatically) | engine → host |
+| "Validate these gaps / is this already studied?" / "Bo'shliqni tekshir" / "Проверь новизну" | `gap-validator` | host (engine runs the searches) |
+| "Build a research concept / concept paper / gap canvas" / "Tadqiqot konsepsiyasini tuz" / "Концепция исследования" | `research-concept-builder` | host |
+| "Do my sources support my claims?" / "Da'volarni tekshir" / "Проверь утверждения" | `claim-verifier` | host (engine locates quotes) |
+| "Prepare my article…" / "Maqolamni tayyorla" / "Подготовь мою статью" | `manuscript-builder` → `academic-writing` → `citation-verifier` → `claim-verifier` → `academic-integrity` → `journal-standards` → `peer-reviewer` | host → host → engine → host → host → host → host |
+| "Audit this manuscript…" / "Qo'lyozmani tekshir" / "Проверь рукопись" | `citation-verifier` → `claim-verifier` → `academic-integrity` → `journal-standards` → `peer-reviewer` | engine → host → host → host → host |
 | "Polish / edit my text…" / "Ilmiy uslubda tahrirla" / "Отредактируй текст" | `academic-writing` | host |
 | "Does it meet journal / STARD / TRIPOD requirements?" / "Xalqaro standartga moslashtir" / "Требования журнала" | `journal-standards` | host |
 | "Where am I in my research?" / "Tadqiqotimda qayerdaman?" / "Где я в исследовании?" | `research-progress` | engine |
 | Multi-stage or ambiguous goal | minimal dependency-aware plan; request only essential missing inputs | — |
 
-Detection precedence in the engine: progress → writing → journal → audit → manuscript → gaps → compare → analyze → search.
+Detection precedence in the engine: progress → writing → journal → claims → concept → gap-validation → audit → manuscript → gaps → compare → analyze → search.
 When keywords collide (e.g. "find papers and gaps"), the longer chain wins because it contains the shorter one.
 
 ## Required inputs per stage
@@ -35,3 +38,6 @@ When keywords collide (e.g. "find papers and gaps"), the longer chain wins becau
 | research-progress | nothing | milestones the user wants tracked |
 | academic-writing | text path | journal style (UK/US, limits), parts not to touch |
 | journal-standards | manuscript path, study design (guideline) | journal author guidelines text, target journal |
+| claim-verifier | manuscript path with citation markers; extracted text of cited sources | bib path for `[@key]` citations |
+| gap-validator | `analysis/research-gaps.md`; external APIs allowed or approved | year range for the counterevidence search |
+| research-concept-builder | chosen gap; author's design, data, resources | timeline, ethics constraints |

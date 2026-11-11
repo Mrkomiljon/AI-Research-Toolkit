@@ -1,6 +1,10 @@
 # Installation
 
-(Toolkit v1.2: 12 skills. Commands below are unchanged from 1.1.)
+(Toolkit v1.4: 15 skills. Commands below are unchanged from 1.1.)
+
+Optional OCR for scanned PDFs: `python -m pip install "ai-research-toolkit[ocr]"` installs Docling (PyTorch and OCR
+models, several GB on first use). Alternatively install Tesseract and put it on PATH. Check with `rtk ocr status`.
+Without either, scanned pages are reported as unread and the paper stays abstract-only.
 
 Two parts are always needed: (1) the **skills** in your agent's skills directory and (2) the **Python engine**
 (`rtk`) that the skills call. Copying `SKILL.md` files alone is not enough.

@@ -1,6 +1,6 @@
 # Foydalanuvchi qo'llanmasi (o'zbek tilida)
 
-AI Research Toolkit — Claude Code yoki OpenAI Codex ichida ishlaydigan 12 ta "skill" (ko'nikma) va ularga xizmat
+AI Research Toolkit — Claude Code yoki OpenAI Codex ichida ishlaydigan 15 ta "skill" (ko'nikma) va ularga xizmat
 qiluvchi Python dvigateli (`rtk`). U tadqiqotchiga **yordamchi**, avtonom tadqiqotchi emas: maqola topadi, tahlil
 qiladi, taqqoslaydi, bo'shliq nomzodlarini taklif qiladi, qo'lyozma tuzilmasini yaratadi, iqtiboslarni tekshiradi,
 taqriz simulyatsiyasini beradi va jarayonni hisoblaydi. Hech qachon maqola, DOI, natija yoki raqam o'ylab topmaydi.
@@ -50,6 +50,9 @@ yuboradi. "Local-first" — fayllar kompyuteringizda qoladi degani, lekin modeln
 | "Tadqiqot bo'shliqlarini top" | search → analyzer → review → research-gap-finder | `analysis/research-gaps.md`, `candidate-hypotheses.md`, `feasibility-report.md` |
 | "Maqolamni tayyorla" | manuscript-builder → citation-verifier → academic-integrity → peer-reviewer | `manuscript/`, `reviews/` |
 | "Qo'lyozmamni tekshir" | citation-verifier → academic-integrity → peer-reviewer | `reviews/citation-audit.md`, `integrity-audit.md`, `peer-review-report.md` |
+| "Qo'lyozmadagi da'volarni tekshir" | claim-verifier | `reviews/claims.json`, `claim-verification.md`, `claim-verification.xlsx` |
+| "Bu bo'shliq allaqachon o'rganilganmi?" | gap-validator | `analysis/gap-counterevidence.json`, `gap-validation.md`, `gap-validation.xlsx` |
+| "Tadqiqot konsepsiyasini tuzib ber" | research-concept-builder | `manuscript/gap-canvas.md`, `concept-paper.md`, `concept-paper.docx` |
 | "Tadqiqotimda qayerdaman?" | research-progress | `progress/project-status.json`, `research-progress.xlsx`, `next-actions.md` |
 | "Matnni ilmiy uslubda tahrirla" | academic-writing | `manuscript/writing-report.md` (har bir o'zgarish ro'yxati), `edited-draft.md`, `style-checklist.md` |
 | "Maqolani xalqaro nashr standartlariga moslashtir" | journal-standards | `reviews/reporting-checklist.xlsx` (CONSORT/STROBE/STARD/TRIPOD/PRISMA…), `journal-compliance.md`, `cover-letter-draft.docx` |
@@ -109,6 +112,14 @@ Agent yoki kompyuter o'chib qolsa, hamma narsa `workflow/plan.yaml` va `workflow
 - **academic-writing** matnni *qanday* yozilganini yaxshilaydi: aniqlik, qisqalik, zamon/majhul nisbat, qisqartmalar, hedging. *Nima* da'vo qilinganini o'zgartirmaydi: raqamlar, iqtiboslar va xulosalar o'zgarishsiz qoladi, dvigatel buni avtomatik solishtiradi. Har bir tahrir `writing-report.md` da "asl → tahrir (sabab)" ko'rinishida yoziladi, siz qabul qilasiz yoki rad etasiz.
 - **journal-standards** tadqiqot turiga mos xalqaro hisobot checklistini (masalan, diagnostika uchun STARD, AI modellari uchun TRIPOD+AI) va jurnal talablarini (so'z limiti, abstrakt formati, deklaratsiyalar: etika, manfaatlar to'qnashuvi, ma'lumot/kod mavjudligi, AI-use) tekshiradi, cover letter qoralamasini beradi. Jurnal talablarini siz `reviews/journal-guidelines.txt` ga qo'yasiz; bo'lmasa limitlar "tekshirilmadi" deb yoziladi.
 - Plagiat bo'yicha: `academic-integrity` to'g'ri iqtibos va parafraza qoidalarini tekshiradi; o'xshashlik detektorlarini aldash yoki "plagiatdan xoli" sertifikat — yo'q.
+
+## 8b. Tekshiruv va konsepsiya (1.4 dan)
+
+- **Skan qilingan PDF (OCR).** `python -m pip install "ai-research-toolkit[ocr]"` (Docling; katta yuklama) yoki Tesseract o'rnatilsa, matn qatlami yo'q sahifalar avtomatik o'qiladi. `rtk ocr status` holatni ko'rsatadi. OCR matnida xato bo'lishi mumkin, shuning uchun bunday sahifalardan olingan iqtiboslar "skan bilan solishtiring" deb belgilanadi. OCR bo'lmasa, sahifa "o'qilmadi" deb yoziladi va mazmuni taxmin qilinmaydi.
+- **claim-verifier** har bir iqtibosli gap uchun hukm chiqaradi: `supported` (tasdiqlaydi), `contradicted` (zid), `insufficient` (dalil yetarli emas). Hukm faqat manbadan so'zma-so'z parcha topilgandagina qabul qilinadi; parcha topilmasa yoki boshqa manbadan bo'lsa, dvigatel hukmni `insufficient`ga tushiradi. `citation-verifier` faqat DOI/metadata'ni tekshiradi, bu skill esa mazmunni.
+- **gap-validator** har bir bo'shliq nomzodi uchun "buni allaqachon kim qilgan?" degan maqsadli qidiruv o'tkazadi va `open` / `partially_addressed` / `already_addressed` / `inconclusive` belgisini qo'yadi. `open` — shu qidiruvda qarshi dalil topilmadi degani, ilmiy yangilik isboti emas (Scopus, Web of Science qidirilmaydi).
+- **research-concept-builder** tanlangan bo'shliqdan Gap Canvas va konsepsiya hujjatini (Word) tuzadi. Metod, ma'lumot, resurs va muddatlarni siz berasiz; siz bermagan qism `[AUTHOR INPUT NEEDED: …]` bo'lib qoladi, agent taklif qilgan qism esa `UNCONFIRMED` deb belgilanadi.
+- Uchala natija ham `human_review: pending` holatida turadi: yakuniy qaror tadqiqotchi va ekspertniki.
 
 ## 9. Nima qilmaydi
 

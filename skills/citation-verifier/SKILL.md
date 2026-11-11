@@ -28,8 +28,8 @@ the findings and help the author fix them; you never "fix" a reference by invent
    - title/DOI mismatch → the DOI belongs to another paper
    - cited but missing in bibliography / unused entry → editing task
 3. Re-run after fixes. Only references that resolved with matching metadata appear in `reviews/verified-references.bib`.
-4. Say explicitly: the audit verifies metadata; whether a cited paper actually supports the claim is a human reading
-   task (evidence records help: `rtk evidence list -p <ws> --source-id <id>`).
+4. Say explicitly: the audit verifies metadata only. Whether a cited paper actually supports the claim is checked by
+   the `claim-verifier` skill (`rtk claims extract` / `rtk claims finalize`) and finally by the author.
 
 ## Outputs
 

@@ -76,6 +76,8 @@ def compute_status(pm: ProjectManager) -> ProjectStatus:
         next_actions.append(f"Analyze available papers ({stats['full_text']} full-text, {stats['abstract_only']} abstract-only)")
     if status.stages["literature-review"].status == "completed" and status.stages["research-gap-finder"].status == "not_started":
         next_actions.append("Derive candidate research gaps from the literature matrix")
+    if status.stages["research-gap-finder"].status in ("completed", "awaiting_user_review") and status.stages["gap-validator"].status == "not_started":
+        next_actions.append("Validate candidate gaps with a targeted counterevidence search (gap-validator)")
     status.blockers = blockers
     status.next_actions = next_actions
     status.milestones = [

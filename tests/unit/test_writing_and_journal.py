@@ -96,8 +96,8 @@ def test_routing_and_plan_include_new_skills(workspace):
     assert detect_intent("Does my paper meet STARD reporting guidelines for the journal?")[0] == "journal"
     assert detect_intent("Maqolani xalqaro nashr standartlariga moslashtir")[0] == "journal"
     plan = build_plan(workspace, "Prepare my article for Radiology")
-    assert [s.skill for s in plan.steps] == ["manuscript-builder", "academic-writing", "citation-verifier", "academic-integrity", "journal-standards", "peer-reviewer"]
-    assert len(SKILL_NAMES) == 12
+    assert [s.skill for s in plan.steps] == ["manuscript-builder", "academic-writing", "citation-verifier", "claim-verifier", "academic-integrity", "journal-standards", "peer-reviewer"]
+    assert len(SKILL_NAMES) == 15
 
 
 def test_cli_writing_and_journal(workspace, capsys):

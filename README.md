@@ -1,9 +1,10 @@
-# AI Research Toolkit (v1.3)
+# AI Research Toolkit (v1.4)
 
-Local-first, skill-based research workflow toolkit for **Claude Code** and **OpenAI Codex**: eleven specialist Agent
+Local-first, skill-based research workflow toolkit for **Claude Code** and **OpenAI Codex**: fourteen specialist Agent
 Skills plus a mandatory `research-orchestrator`, backed by a deterministic Python engine (`rtk`). It helps a researcher
 find papers, analyze them with locators, build evidence-linked reviews, shortlist candidate gaps, structure manuscripts,
-audit citations, check integrity, simulate peer review and track progress — **without inventing papers, results or
+audit citations, check claims against their sources, validate gaps against counterevidence, shape a research concept,
+check integrity, simulate peer review and track progress — **without inventing papers, results or
 completion marks**. It is an assistant, not an autonomous researcher and not a publication guarantee.
 
 UI languages: Uzbek, English, Russian (skills are written in English; the agent answers in your language).
@@ -14,7 +15,7 @@ UI languages: Uzbek, English, Russian (skills are written in English; the agent 
 |---|---|---|
 | `research-orchestrator` | plans a dependency-aware workflow, previews it, gets approvals, runs/delegates, checkpoints, reports what is on disk | never fabricates outputs, never bypasses human review |
 | `literature-search` | OpenAlex/Crossref/(Semantic Scholar) search, query log, dedup, ranking, access levels; **open-access full-text fetch** (arXiv, Europe PMC, Unpaywall, OpenAlex OA) into `papers/PDFs/` | never invents articles; only open-access copies; reports coverage |
-| `paper-analyzer` | objective/methods/sample/outcomes/limitations with page locators and verbatim excerpts | explicit `ABSTRACT_ONLY` if no full text |
+| `paper-analyzer` | objective/methods/sample/outcomes/limitations with page locators and verbatim excerpts; **optional OCR for scanned PDFs** *(1.4)* | explicit `ABSTRACT_ONLY` if no full text; OCR'd pages are labelled |
 | `literature-review` | comparison matrix + evidence-linked synthesis | every claim linked to `ev-`/`src-` ids |
 | `research-gap-finder` | candidate gaps, hypotheses, feasibility | candidate gap ≠ proven novelty |
 | `manuscript-builder` | IMRaD outline, author-reviewed draft, missing-info list | no fictitious methods/results |
@@ -24,6 +25,32 @@ UI languages: Uzbek, English, Russian (skills are written in English; the agent 
 | `research-progress` | status from artifacts on disk, blockers, next actions | no evidence-free completion marks |
 | `academic-writing` *(new in 1.2)* | scientific copy-editing: clarity, concision, tense/voice, acronyms, hedging; tracked edit report; before/after metrics | facts, numbers, citations and claims never change |
 | `journal-standards` *(new in 1.2)* | reporting-guideline checklist (CONSORT, STROBE, STARD, TRIPOD+AI, PRISMA, ARRIVE, CARE, generic), ICMJE declarations, journal limits, cover-letter draft | readiness check, not a guarantee of acceptance |
+| `claim-verifier` *(new in 1.4)* | for every cited sentence: Supported / Contradicted / Insufficient, with a verbatim quote and page locator from the cited source | no verdict without a quote the engine finds in the source; agent verdict ≠ human verification |
+| `gap-validator` *(new in 1.4)* | targeted counterevidence search per candidate gap; open / partially addressed / already addressed / inconclusive | "open" = nothing found by this search, never proven novelty |
+| `research-concept-builder` *(new in 1.4)* | Gap Canvas + concept paper (md, docx) from a validated gap and the author's decisions | design, data and timeline come from the author; missing parts stay placeholders |
+
+## New in 1.4
+
+```bash
+# scanned PDFs: optional OCR (large download: PyTorch + models); without it scans are reported, never guessed
+python -m pip install "ai-research-toolkit[ocr]"
+rtk ocr status
+rtk analyze prepare -p <ws> <src-id> --ocr auto        # OCRs only pages without a text layer
+
+# claim verification: does the cited paper say what the sentence claims?
+rtk claims extract  -p <ws> --manuscript manuscript/draft.md   # -> reviews/claims.json (agent fills verdict + quote)
+rtk claims finalize -p <ws>                                    # engine locates every quote; can only downgrade
+
+# gap validation: look for the study that already fills the gap
+rtk gaps init -p <ws> && rtk gaps search -p <ws> && rtk gaps finalize -p <ws>
+
+# research concept
+rtk concept init -p <ws> && rtk concept build -p <ws>          # gap-canvas.md, concept-paper.md/.docx
+```
+
+These add checks, not certainty: verdicts are an AI agent's reading anchored by quotes and search logs the engine can
+verify, and every row stays `human_review: pending` until the author signs it off. GROBID, institutional
+Scopus/Web of Science access and trained NLI models are not included.
 
 ## Requirements
 
@@ -119,6 +146,10 @@ Outputs are ordinary files (`.md`, `.xlsx`, `.docx`, `.json`) under the workspac
 - `Use research-progress. What is done, what is blocked, what next?`
 - `Use academic-writing. Polish the English of manuscript/manuscript-outline.md without changing any numbers or citations.`
 - `Use journal-standards. Check manuscript/manuscript-draft.docx against TRIPOD+AI and the author guidelines in reviews/journal-guidelines.txt.`
+- `Use claim-verifier. Check whether the sources cited in manuscript/draft.md actually support each claim.`
+- `Use gap-validator. Are the gaps in analysis/research-gaps.md already addressed by other studies?`
+- `Use research-concept-builder. Turn gap-1 into a concept paper; I will give you the design and data.`
+- Uzbek: `Use claim-verifier. Qo'lyozmadagi da'volarni manbalar bilan tekshir.`
 - Uzbek: `Use journal-standards. Maqolani xalqaro nashr standartlariga moslashtir.`
 - Uzbek: `Use research-orchestrator. Paxta hosildorligi va ML bo'yicha 20 ta maqola top va bo'shliqlarni aniqla.`
 - Russian: `Use research-orchestrator. Найди 20 статей о прогнозировании урожайности хлопка и пробелы в исследованиях.`
@@ -177,7 +208,7 @@ rtk validate-skills --skills-dir skills
 pytest -q
 ```
 
-87 tests (unit, integration, acceptance) pass offline on Windows 11 / Python 3.11.9 (2026-11-07); CI runs them on
+109 tests (unit, integration, acceptance) pass offline on Windows 11 / Python 3.11.9 (2026-11-11); CI runs them on
 Ubuntu and Windows with Python 3.11 and 3.12. Acceptance criteria from the specification:
 
 | # | Criterion | Status |
@@ -195,7 +226,10 @@ Ubuntu and Windows with Python 3.11 and 3.12. Acceptance criteria from the speci
 
 ## Known limitations
 
-- Only open-access full texts are fetched (`rtk fetch`); paywalled papers stay abstract-only unless you add the PDF. Unpaywall needs `RTK_CONTACT_EMAIL`. Scanned PDFs without a text layer are not OCR'd.
+- Only open-access full texts are fetched (`rtk fetch`); paywalled papers stay abstract-only unless you add the PDF. Unpaywall needs `RTK_CONTACT_EMAIL`.
+- Scanned PDFs need the optional OCR extra (Docling) or Tesseract; OCR text can contain recognition errors, so quotes from OCR'd pages are flagged for checking against the scan.
+- `claim-verifier` covers sentences with explicit citation markers (`[src-…]`, `[@key]`, `\cite{}`), not author-year citations; it confirms that a quote exists in the cited source, the judgement of meaning is the agent's and then the author's.
+- `gap-validator` searches free metadata APIs (titles/abstracts); it cannot see Scopus, Web of Science, non-English or grey literature.
 - Author-year citation matching is heuristic; use `\cite{}`, `[@key]` or `[src-…]` for reliable audits.
 - Intent routing is keyword-based; ambiguous requests produce an empty plan and a question, by design.
 - Semantic Scholar public tier is rate-limited; it is optional.
@@ -204,11 +238,11 @@ Ubuntu and Windows with Python 3.11 and 3.12. Acceptance criteria from the speci
 
 ## Repository map
 
-`skills/` canonical skills (12) · `research_toolkit/` engine · `scripts/` install, doctor, init_project, validate_sources,
+`skills/` canonical skills (15) · `research_toolkit/` engine · `scripts/` install, doctor, init_project, validate_sources,
 export_report, build_templates · `templates/` · `examples/agriculture-research/` · `tests/` · `docs/` (installation,
 user-guide-uz, architecture, security) · `.github/workflows/ci.yml`.
 
-Published on PyPI: https://pypi.org/project/ai-research-toolkit/ (v1.3.0, 2026-11-07).
+Published on PyPI: https://pypi.org/project/ai-research-toolkit/
 
 ## Releasing to PyPI (maintainers)
 

@@ -31,7 +31,9 @@ and validates that every gap is evidence-linked and free of novelty over-claims.
    rtk review validate-gaps -p <ws> --file analysis/research-gaps.md
    ```
    Fails on unknown ids, unlinked paragraphs or phrases like "proven novel", "nobody has studied".
-5. Checkpoint with `--needs-review`. Tell the user that novelty must be confirmed by a broader search and expert judgement.
+5. Checkpoint with `--needs-review`. Tell the user that novelty must be confirmed by a broader search and expert
+   judgement, and offer `gap-validator` (targeted counterevidence search per gap) as the next step. Keep the
+   `## Gap N: <title>` heading format; `rtk gaps init` reads it.
 
 ## Outputs
 

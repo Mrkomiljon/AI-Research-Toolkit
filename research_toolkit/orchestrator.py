@@ -41,11 +41,18 @@ INTENTS: list[tuple[str, list[str], list[str]]] = [
                  r"submission (ready|readiness|checklist)", r"adapt (to|for) (the )?journal", r"cover letter", r"xalqaro (nashr )?standart", r"jurnal talab", r"moslashtir",
                  r"требован\w* журнала", r"стандарт\w* публикац", r"сопроводительн"],
      ["journal-standards"]),
+    ("claims", [r"\bclaims?\b", r"da['’ʻ`]?vo", r"утвержден", r"заявлен"],
+     ["claim-verifier"]),
+    ("concept", [r"concept (paper|note)", r"gap canvas", r"research concept", r"kon(t)?sepsiya", r"концепц"],
+     ["research-concept-builder"]),
+    ("gap-validation", [r"validate (the |my |these )?(research )?gaps?", r"gap validation", r"counter-?evidence", r"novelty check", r"already (been )?(studied|addressed)",
+                        r"bo['’ʻ`]?shliq\w* (tekshir|valid)", r"yangilik\w* tekshir", r"провер\w* (пробел|новизн)"],
+     ["gap-validator"]),
     ("audit", [r"\baudit", r"check (my|the) (manuscript|citations|references)", r"tekshir", r"audit", r"проверь", r"аудит"],
-     ["citation-verifier", "academic-integrity", "journal-standards", "peer-reviewer"]),
+     ["citation-verifier", "claim-verifier", "academic-integrity", "journal-standards", "peer-reviewer"]),
     ("manuscript", [r"prepare (my|the|an?) (article|manuscript|paper)", r"write (my|the|an?) (article|manuscript|paper)", r"draft", r"maqola(ni)? (tayyorla|yoz)",
                     r"qo'lyozma", r"подготов\w* стать", r"напиш\w* стать", r"рукопис"],
-     ["manuscript-builder", "academic-writing", "citation-verifier", "academic-integrity", "journal-standards", "peer-reviewer"]),
+     ["manuscript-builder", "academic-writing", "citation-verifier", "claim-verifier", "academic-integrity", "journal-standards", "peer-reviewer"]),
     ("gaps", [r"research gap", r"\bgaps?\b", r"bo'shliq", r"пробел", r"gap"],
      ["literature-search", "paper-analyzer", "literature-review", "research-gap-finder"]),
     ("compare", [r"compare", r"comparison", r"matrix", r"synthes", r"review (these|the) papers", r"taqqosla", r"solishtir", r"сравн", r"обзор"],
@@ -152,6 +159,20 @@ def build_plan(pm: ProjectManager, request_text: str, *, overrides: dict[str, An
             step.inputs = {"manuscript_path": constraints.get("manuscript_path"), "field": cfg.field, "journal": cfg.target_journal}
         elif skill == "research-gap-finder":
             step.inputs = {"scope": cfg.topic, "constraints": constraints.get("constraints")}
+        elif skill == "claim-verifier":
+            step.inputs = {"manuscript_path": constraints.get("manuscript_path"), "bib_path": constraints.get("bib_path")}
+            if not constraints.get("manuscript_path") and "manuscript-builder" not in chain:
+                step.notes = "manuscript_path not given: ask the user which text to check, then run `rtk claims extract`"
+        elif skill == "gap-validator":
+            step.inputs = {"gaps_file": "analysis/research-gaps.md", "per_query": min(10, cfg.budget.max_papers_per_search)}
+            if not cfg.privacy.allow_external_apis:
+                step.approval_required, step.approval_reason = True, "privacy.allow_external_apis is false; the counterevidence search needs explicit approval"
+            if not (pm.workspace / "analysis" / "research-gaps.md").exists() and "research-gap-finder" not in chain:
+                step.notes = "analysis/research-gaps.md not found: run research-gap-finder first or ask the user for the gap list"
+        elif skill == "research-concept-builder":
+            step.inputs = {"gap_id": "chosen with the author", "author_inputs": "REQUIRED from user: design, data, resources, timeline"}
+            if not (pm.workspace / "analysis" / "gap-validation.json").exists():
+                step.notes = "no gap-validation.json yet: the concept will be marked as resting on an unvalidated gap"
         elif skill == "academic-writing":
             step.inputs = {"manuscript_path": constraints.get("manuscript_path"), "journal_style": cfg.target_journal}
             if not constraints.get("manuscript_path") and "manuscript-builder" not in chain:
