@@ -5,7 +5,7 @@ the verifiable parts: schemas, registries, DOI checks, deduplication, document
 parsing, exports, workflow checkpoints and progress computation.
 """
 
-__version__ = "1.4.0"
+__version__ = "1.4.1"
 SCHEMA_VERSION = "1.1"
 SKILL_NAMES = (
     "research-orchestrator",

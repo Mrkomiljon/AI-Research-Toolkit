@@ -6,6 +6,9 @@ Optional OCR for scanned PDFs: `python -m pip install "ai-research-toolkit[ocr]"
 models, several GB on first use). Alternatively install Tesseract and put it on PATH. Check with `rtk ocr status`.
 Without either, scanned pages are reported as unread and the paper stays abstract-only.
 
+Shortest route (1.4.1+): `python -m pip install ai-research-toolkit`, then `rtk setup` in your research folder and
+`rtk doctor` to check. The routes below (Skills CLI, clone + `scripts/install.py`) remain available.
+
 Two parts are always needed: (1) the **skills** in your agent's skills directory and (2) the **Python engine**
 (`rtk`) that the skills call. Copying `SKILL.md` files alone is not enough.
 

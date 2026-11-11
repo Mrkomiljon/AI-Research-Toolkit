@@ -109,7 +109,7 @@ def main() -> int:
         results += [install_one(s, dest_root, copy=copy, force=a.force) for s in skill_dirs()]
     print("\n".join(results))
     print(f"\n{len(skill_dirs())} skills processed for agent(s): {', '.join(agents)} (scope={a.scope})")
-    print("Python engine: run `python -m pip install -e .` in the toolkit repo so `rtk` is on PATH (skills call it).")
+    print("The skills call the `rtk` engine: `python -m pip install ai-research-toolkit` (or `pip install -e .` in this repo), then check with `rtk doctor`.")
     return 0
 
 

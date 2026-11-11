@@ -58,6 +58,7 @@ def init_canvas(pm: ProjectManager, *, force: bool = False) -> dict[str, Any]:
     }
     path = write_json(out, payload)
     return {"artifact": str(path), "validated_gaps": len(validated),
+            "next": "choose gap_id with the author, fill the fields in manuscript/gap-canvas.json, then run `rtk concept build`",
             "warning": None if validated else "no analysis/gap-validation.json: the gap has not been checked for counterevidence (run gap-validator first)"}
 
 
@@ -156,4 +157,7 @@ def build_concept(pm: ProjectManager, canvas_path: str = CANVAS_PATH, *, force: 
         pm.register_artifact(p, skill="research-concept-builder", run_id=run_id, step_id=step_id, source_ids=cited,
                              validation_status=status, author_review=AuthorReviewStatus.PENDING, tentative=True)
     return {"title": title, "gap_id": gap_id, "missing": missing, "unconfirmed": unconfirmed, "warnings": warnings, "problems": problems,
-            "cited_sources": cited, "artifacts": [str(canvas_md), str(md), str(docx)], "ok": not problems}
+            "cited_sources": cited, "artifacts": [str(canvas_md), str(md), str(docx)], "ok": not problems,
+            "next": ("fix the problems in the canvas and rebuild" if problems else
+                     "ask the author for the missing/unconfirmed blocks and rebuild" if (missing or unconfirmed) else
+                     "author reviews manuscript/concept-paper.docx")}

@@ -10,10 +10,13 @@ taqriz simulyatsiyasini beradi va jarayonni hisoblaydi. Hech qachon maqola, DOI,
 ```bash
 python -m pip install ai-research-toolkit
 cd C:\Users\siz\tadqiqot
-npx skills add Mrkomiljon/AI-Research-Toolkit -a claude-code   # yoki -a codex
+rtk setup        # 15 ta skill'ni shu papkaga o'rnatadi (Claude Code va Codex uchun)
+rtk doctor       # hammasi joyidami, tekshiradi va nima yetishmasa qanday tuzatishni aytadi
 ```
 
-Node.js bo'lmasa: repo'ni klon qilib `python scripts/install.py --agent all --scope project --project-dir C:\Users\siz\tadqiqot` ishlating.
+Node.js ham, git ham kerak emas. Faqat bitta agent uchun: `rtk setup --agent claude` yoki `--agent codex`.
+Yangilash: `python -m pip install -U ai-research-toolkit`, keyin yana `rtk setup`. O'zingiz tahrirlagan skill'lar
+`--force` bermaguningizcha almashtirilmaydi. (Node.js bo'lsa `npx skills add Mrkomiljon/AI-Research-Toolkit -a claude-code` ham ishlaydi.)
 
 Agentni (Claude Code yoki Codex) `C:\Users\siz\tadqiqot` papkasida oching. Batafsil: `docs/installation.md`.
 

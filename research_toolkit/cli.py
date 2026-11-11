@@ -301,6 +301,26 @@ def cmd_analyze(a):
             sys.exit(4)
 
 
+def cmd_setup(a):
+    from . import installer
+
+    agents = ["claude", "codex"] if a.agent == "all" else [a.agent]
+    try:
+        res = installer.install_skills(agents, scope=a.scope, project_dir=a.dir, force=a.force)
+    except FileNotFoundError as exc:
+        _out({"error": str(exc)}, a.json)
+        sys.exit(1)
+    _out(res if a.json else installer.render_setup(res, agents), a.json)
+
+
+def cmd_doctor(a):
+    from . import installer
+
+    report = installer.doctor(a.dir, check_network=not a.offline)
+    _out(report if a.json else installer.render_doctor(report), a.json)
+    sys.exit(0 if report["ready"] else 1)
+
+
 def cmd_ocr(a):
     from . import ocr
 
@@ -532,6 +552,18 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--max-papers", type=int, default=50)
     s.add_argument("--force", action="store_true")
     s.set_defaults(fn=cmd_init)
+
+    s = sub.add_parser("setup", help="install the skills for Claude Code and/or Codex into this folder (no Node.js or git needed)")
+    s.add_argument("--agent", choices=["claude", "codex", "all"], default="all")
+    s.add_argument("--scope", choices=["project", "user"], default="project", help="project = this folder (default); user = every folder")
+    s.add_argument("--dir", default=".", help="research folder for --scope project (default: current folder)")
+    s.add_argument("--force", action="store_true", help="also replace skills you edited or that another tool installed")
+    s.set_defaults(fn=cmd_setup)
+
+    s = sub.add_parser("doctor", help="check the installation: engine, skills, agents, OCR, network")
+    s.add_argument("--dir", default=".")
+    s.add_argument("--offline", action="store_true", help="skip the network reachability checks")
+    s.set_defaults(fn=cmd_doctor)
 
     s = sub.add_parser("plan", help="build a dependency-aware workflow plan from a natural-language request")
     proj(s)

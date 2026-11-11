@@ -186,7 +186,8 @@ def extract_claims(pm: ProjectManager, manuscript_path: str, bib_path: str | Non
     return {"claims": len(claims), "with_unresolved_keys": sum(1 for c in claims if c["unresolved_keys"]),
             "without_resolved_source": sum(1 for c in claims if not c["cited_source_ids"]),
             "sources_without_extracted_text": sorted({cand["source_id"] for c in claims for cand in c["candidates"] if not cand["full_text_extracted"]}),
-            "artifact": str(path)}
+            "artifact": str(path),
+            "next": "fill verdict, evidence (verbatim quote) and rationale for every claim in reviews/claims.json, then run `rtk claims finalize`"}
 
 
 def finalize_claims(pm: ProjectManager, data: dict[str, Any], *, run_id=None, step_id=None) -> dict[str, Any]:
@@ -303,7 +304,9 @@ def finalize_claims(pm: ProjectManager, data: dict[str, Any], *, run_id=None, st
         pm.register_artifact(claims_path, skill="claim-verifier", run_id=run_id, step_id=step_id, source_ids=src_ids, validation_status=ValidationStatus.VALID)
     passed = not with_problems and counts["contradicted"] == 0 and counts["insufficient"] == 0 and counts["not_assessed"] == 0
     return {"claims": len(rows), "counts": counts, "problems": {r["claim_id"]: r["problems"] for r in with_problems},
-            "artifacts": [str(js), str(md), str(xlsx)], "passed": passed}
+            "artifacts": [str(js), str(md), str(xlsx)], "passed": passed,
+            "next": ("author reviews every row in reviews/claim-verification.xlsx (human_review column)" if passed else
+                     "show the author reviews/claim-verification.md: fix contradicted/insufficient claims (reword, re-cite or remove), then re-run extract and finalize")}
 
 
 # =====================================================================
@@ -439,7 +442,8 @@ def search_gap_counterevidence(pm: ProjectManager, providers: list[ScholarlyProv
     if blocked:
         raise StepBlocked("every targeted query failed: " + "; ".join(sorted(set(errors))), [str(path)])
     return {"gaps": len(result_gaps), "queries_ok": ok_queries, "new_sources": new_sources,
-            "hits_per_gap": {g["gap_id"]: len(g["hits"]) for g in result_gaps}, "errors": sorted(set(errors)), "artifacts": [str(path)]}
+            "hits_per_gap": {g["gap_id"]: len(g["hits"]) for g in result_gaps}, "errors": sorted(set(errors)), "artifacts": [str(path)],
+            "next": f"screen the hits in analysis/gap-counterevidence.json, set verdict/counter_source_ids/rationale in {input_path}, then run `rtk gaps finalize`"}
 
 
 def finalize_gap_validation(pm: ProjectManager, *, input_path: str = GAP_INPUT, run_id=None, step_id=None) -> dict[str, Any]:
@@ -532,7 +536,9 @@ def finalize_gap_validation(pm: ProjectManager, *, input_path: str = GAP_INPUT, 
         pm.register_artifact(p, skill="gap-validator", run_id=run_id, step_id=step_id, source_ids=src_ids,
                              validation_status=status, author_review=AuthorReviewStatus.PENDING)
     return {"gaps": len(rows), "counts": counts, "problems": {r["gap_id"]: r["problems"] for r in with_problems},
-            "artifacts": [str(js), str(md), str(xlsx)], "passed": not with_problems}
+            "artifacts": [str(js), str(md), str(xlsx)], "passed": not with_problems,
+            "next": ("author and an expert review analysis/gap-validation.md; then `rtk concept init` for an open or partially addressed gap" if not with_problems
+                     else "fix the listed problems in the worksheet and re-run `rtk gaps finalize`")}
 
 
 __all__ = ["CLAIM_VERDICTS", "GAP_VERDICTS", "GAP_INPUT", "ID_REF_RE", "extract_claims", "finalize_claims", "init_gap_validation",
