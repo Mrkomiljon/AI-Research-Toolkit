@@ -161,10 +161,6 @@ rtk status -p workspace/crop-yield
 rtk report -p workspace/crop-yield            # lists only files that exist on disk
 ```
 
-`examples/agriculture-research/` contains a real run (live OpenAlex + Crossref, 2026-11-07) with 16 deduplicated,
-DOI-bearing sources, an abstract-only example analysis with tool-verified excerpts, a matrix, status files and the
-workflow log. See its README for what is and is not demonstrated.
-
 ## Workspace layout
 
 ```
@@ -236,7 +232,7 @@ Ubuntu and Windows with Python 3.11 and 3.12. Acceptance criteria from the speci
 ## Repository map
 
 `skills/` canonical skills (15) · `research_toolkit/` engine · `scripts/` install, doctor, init_project, validate_sources,
-export_report, build_templates · `templates/` · `examples/agriculture-research/` · `tests/` · `docs/` (installation,
+export_report, build_templates · `templates/` · `tests/` · `docs/` (installation,
 user-guide-uz, architecture, security) · `.github/workflows/ci.yml`.
 
 Published on PyPI: https://pypi.org/project/ai-research-toolkit/

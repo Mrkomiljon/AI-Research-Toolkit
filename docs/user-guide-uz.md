@@ -137,5 +137,3 @@ Agent yoki kompyuter o'chib qolsa, hamma narsa `workflow/plan.yaml` va `workflow
 - "Use paper-analyzer. papers/PDFs/karimov2023.pdf faylini 'qaysi xususiyatlar aniqlikni oshiradi' savoli bo'yicha tahlil qil."
 - "Use citation-verifier. manuscript/draft.docx dagi iqtiboslarni sources/references.bib bilan tekshir."
 - "Use research-progress. Nima qildik, nima qoldi, nima bloklangan?"
-
-Misol ish maydoni: `examples/agriculture-research/` (haqiqiy OpenAlex/Crossref ma'lumotlari bilan).
