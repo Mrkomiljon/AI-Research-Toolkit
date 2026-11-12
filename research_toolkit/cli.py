@@ -528,6 +528,7 @@ def cmd_validate_skills(a):
 # ---- parser --------------------------------------------------------------------------------------------
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="rtk", description=f"AI Research Toolkit engine v{__version__}")
+    p.add_argument("--version", action="version", version=f"ai-research-toolkit {__version__}")
     p.add_argument("--json", action="store_true", help="machine-readable output")
     sub = p.add_subparsers(dest="cmd", required=True)
 

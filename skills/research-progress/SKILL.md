@@ -13,6 +13,13 @@ You present it in the user's language and record user-confirmed milestones.
 - Workspace. Optional: milestones the user wants tracked (recorded as notes in `next-actions.md`).
 - User confirmations (e.g. "I approved the synthesis") → `rtk step approve-review -p <ws> <step>`.
 
+## Engine
+
+Before the first `rtk` command of a session run `rtk --version`. If the command is missing or fails, install the engine
+yourself and tell the user in one line that you did: `python -m pip install -U ai-research-toolkit` (Python 3.11+; if
+Python itself is missing, stop and say so). If `rtk` is still not found afterwards, use `python -m research_toolkit`
+wherever this skill says `rtk`. Do not ask the user to run install commands by hand.
+
 ## Workflow
 
 1. Run:

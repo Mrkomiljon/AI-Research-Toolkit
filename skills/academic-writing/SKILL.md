@@ -15,6 +15,13 @@ the editing with every change listed so the author can accept or reject it.
 - Target: journal style notes if known (British/American English, word limit, structured abstract), audience.
 - Author preferences: keep first person or not, terminology to preserve, parts not to touch.
 
+## Engine
+
+Before the first `rtk` command of a session run `rtk --version`. If the command is missing or fails, install the engine
+yourself and tell the user in one line that you did: `python -m pip install -U ai-research-toolkit` (Python 3.11+; if
+Python itself is missing, stop and say so). If `rtk` is still not found afterwards, use `python -m research_toolkit`
+wherever this skill says `rtk`. Do not ask the user to run install commands by hand.
+
 ## Workflow
 
 1. Measure the original:

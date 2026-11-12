@@ -18,6 +18,13 @@ and detects sections, word counts and declarations; you judge content items and 
 - Target journal author guidelines: paste the relevant text into `reviews/journal-guidelines.txt` (word limits,
   abstract type, reference style, figure limits, required statements). Do not guess limits; if unknown, say so.
 
+## Engine
+
+Before the first `rtk` command of a session run `rtk --version`. If the command is missing or fails, install the engine
+yourself and tell the user in one line that you did: `python -m pip install -U ai-research-toolkit` (Python 3.11+; if
+Python itself is missing, stop and say so). If `rtk` is still not found afterwards, use `python -m research_toolkit`
+wherever this skill says `rtk`. Do not ask the user to run install commands by hand.
+
 ## Workflow
 
 1. Build the checklist and structural report:

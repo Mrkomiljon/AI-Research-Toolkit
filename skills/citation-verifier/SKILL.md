@@ -15,6 +15,13 @@ the findings and help the author fix them; you never "fix" a reference by invent
 - `bib_path` (optional; default `sources/references.bib`)
 - Offline mode when external APIs are disabled (`--offline`): format checks only, stated in the report.
 
+## Engine
+
+Before the first `rtk` command of a session run `rtk --version`. If the command is missing or fails, install the engine
+yourself and tell the user in one line that you did: `python -m pip install -U ai-research-toolkit` (Python 3.11+; if
+Python itself is missing, stop and say so). If `rtk` is still not found afterwards, use `python -m research_toolkit`
+wherever this skill says `rtk`. Do not ask the user to run install commands by hand.
+
 ## Workflow
 
 1. Run:

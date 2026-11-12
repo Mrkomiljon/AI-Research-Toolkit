@@ -16,6 +16,13 @@ that did not come from a provider response.
 - inclusion / exclusion criteria (free text, recorded in `search-strategy.md`)
 - providers: default `openalex,crossref`; add `semantic_scholar` only if the user wants it (public rate limits apply)
 
+## Engine
+
+Before the first `rtk` command of a session run `rtk --version`. If the command is missing or fails, install the engine
+yourself and tell the user in one line that you did: `python -m pip install -U ai-research-toolkit` (Python 3.11+; if
+Python itself is missing, stop and say so). If `rtk` is still not found afterwards, use `python -m research_toolkit`
+wherever this skill says `rtk`. Do not ask the user to run install commands by hand.
+
 ## Workflow
 
 1. Confirm the workspace: `rtk sources stats -p <ws>`. If `privacy.allow_external_apis` is false, stop and ask; the

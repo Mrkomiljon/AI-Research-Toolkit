@@ -72,24 +72,20 @@ openai.com/chatgpt/pricing before advising users.
 
 ## 1-minute quickstart
 
-```bash
-python -m pip install ai-research-toolkit     # engine + skills, from PyPI
-cd /path/to/your/research-folder
-rtk setup                                     # copies the 15 skills for Claude Code and Codex into this folder
-rtk doctor                                    # checks engine, skills, agents, OCR, network; says how to fix what is missing
-```
-
-That is all: no Node.js and no git clone needed. `rtk setup --agent claude` (or `codex`) installs for one agent,
-`--scope user` installs for every folder. After `pip install -U ai-research-toolkit`, run `rtk setup` again to update
-the skills; skills you edited yourself are kept unless you pass `--force`.
-
-Alternative with the Skills CLI (needs Node.js):
+One step: install the skills in your research folder. Either command is enough.
 
 ```bash
-npx skills add Mrkomiljon/AI-Research-Toolkit -a claude-code   # or -a codex
+npx skills add Mrkomiljon/AI-Research-Toolkit                  # with Node.js
+python -m pip install ai-research-toolkit && rtk setup         # with Python only
 ```
 
-Open Claude Code or Codex **in `/path/to/your/research-folder`** and type:
+Nothing else to set up. The skills need the `rtk` engine (Python 3.11+); from 1.4.2 on, if it is not installed the
+agent installs it itself from PyPI the first time a skill runs. `rtk doctor` checks the installation whenever you
+want, `rtk setup --agent claude` (or `codex`) installs for one agent, `--scope user` for every folder. After
+`pip install -U ai-research-toolkit`, run `rtk setup` again to update the skills; skills you edited yourself are kept
+unless you pass `--force`.
+
+Then open Claude Code or Codex **in that folder** and type:
 
 > Use research-orchestrator. Initialize my PhD research on machine learning for cotton yield prediction.
 
@@ -201,7 +197,7 @@ rtk validate-skills --skills-dir skills
 pytest -q
 ```
 
-112 tests (unit, integration, acceptance) pass offline on Windows 11 / Python 3.11.9 (2026-11-11); CI runs them on
+113 tests (unit, integration, acceptance) pass offline on Windows 11 / Python 3.11.9 (2026-11-11); CI runs them on
 Ubuntu and Windows with Python 3.11 and 3.12. Acceptance criteria from the specification:
 
 | # | Criterion | Status |

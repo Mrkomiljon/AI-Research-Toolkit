@@ -79,6 +79,17 @@ def test_doctor_reports_actionable_state(tmp_path, home, monkeypatch):
     assert "privacy mode" in by["scholarly APIs"]["detail"]
 
 
+def test_skills_bootstrap_the_engine_themselves(capsys):
+    """1.4.2: installing the skills is the only manual step; each skill tells the agent how to get the engine."""
+    for name in SKILL_NAMES:
+        text = (installer.skills_source() / name / "SKILL.md").read_text(encoding="utf-8")
+        assert text.index("## Engine") < text.index("## Workflow"), name
+        assert "rtk --version" in text and "python -m pip install -U ai-research-toolkit" in text and "python -m research_toolkit" in text, name
+    with pytest.raises(SystemExit) as exc:
+        rtk(["--version"])
+    assert exc.value.code == 0 and capsys.readouterr().out.strip() == f"ai-research-toolkit {installer.__version__}"
+
+
 def test_cli_setup_and_doctor(tmp_path, home, capsys):
     proj = tmp_path / "research"
     proj.mkdir()

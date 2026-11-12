@@ -16,6 +16,13 @@ draft, and you review the manuscript for attribution problems. Outputs are draft
 - Journal policy text (paste into `reviews/journal-policy.txt`) if available.
 - Manuscript path (optional, for attribution checks).
 
+## Engine
+
+Before the first `rtk` command of a session run `rtk --version`. If the command is missing or fails, install the engine
+yourself and tell the user in one line that you did: `python -m pip install -U ai-research-toolkit` (Python 3.11+; if
+Python itself is missing, stop and say so). If `rtk` is still not found afterwards, use `python -m research_toolkit`
+wherever this skill says `rtk`. Do not ask the user to run install commands by hand.
+
 ## Workflow
 
 1. Ask the author what AI tools were used, for which stages, what they reviewed, and what data was shared. Write the JSON.
